@@ -1,0 +1,23 @@
+# Fragment Caddy du site, importé par le Caddy partagé du dépôt `serveur` dans le bloc du domaine racine
+# (`{$DOMAINE} { import /etc/caddy/sites/site.caddy }`). Ni hôte, ni TLS, ni redirection www : `serveur` s'en charge.
+# `serveur` monte le volume `site_dist` (construit par `site-builder`) sur /srv/site.
+root * /srv/site
+encode zstd gzip
+
+# Webhook appelé par le worker de la veille quand la vitrine change (séance 3 : conteneur `site-builder`, jeton Bearer).
+handle /rebuild {
+	reverse_proxy site-builder:8080
+}
+
+handle {
+	file_server
+}
+
+header {
+	Strict-Transport-Security "max-age=31536000"
+	X-Content-Type-Options nosniff
+	X-Frame-Options DENY
+	Referrer-Policy strict-origin-when-cross-origin
+	Content-Security-Policy "default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; frame-ancestors 'none'"
+	-Server
+}
