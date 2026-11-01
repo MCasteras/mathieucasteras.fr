@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "items_par_mois": [
+    { "mois": "2026-09", "collectes": 40, "retenus": 12, "lus": 5 },
+    { "mois": "2026-10", "collectes": 55, "retenus": 18, "lus": 9 }
+  ],
+  "posts_publies": 2,
+  "fiches": 1,
+  "focus": 1,
+  "usage": {
+    "par_tache": [{ "cle": "traitement", "appels": 10, "entree": 1000, "sortie": 200, "cout": 0.1234 }],
+    "par_modele": [{ "cle": "exemple-modele", "appels": 10, "entree": 1000, "sortie": 200, "cout": 0.1234 }],
+    "total": { "appels": 10, "entree": 1000, "sortie": 200, "cout": 0.1234 }
+  },
+  "_note": "Jeu d'exemple factice : ces chiffres sont inventés."
+}

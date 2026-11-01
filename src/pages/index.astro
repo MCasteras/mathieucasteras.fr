@@ -1,0 +1,83 @@
+---
+/** Accueil : qui je suis, ce qu'est un FDE, ce que je fais, les dernières publications de la veille, l'appel au contact. */
+import { getCollection, getEntry } from 'astro:content';
+import Base from '../layouts/Base.astro';
+import { dateFr, extrait } from '../lib/format';
+
+const etat = await getEntry('vitrine', 'index');
+const comptes = (etat?.data.comptes ?? {}) as Record<string, number>;
+const posts = (await getCollection('posts')).sort((a, b) => (b.data.publie_le ?? '').localeCompare(a.data.publie_le ?? '')).slice(0, 3);
+const fiches = (await getCollection('fiches')).sort((a, b) => (b.data.valide_le ?? '').localeCompare(a.data.valide_le ?? '')).slice(0, 1);
+const focus = (await getCollection('focus')).sort((a, b) => (b.data.pret_le ?? '').localeCompare(a.data.pret_le ?? '')).slice(0, 1);
+---
+
+<Base titre="Mathieu Casteras" description="Mathieu Casteras, Forward Deployed Engineer : IA générative en entreprise, du prototype au terrain.">
+  <h1>Mathieu Casteras, Forward Deployed Engineer</h1>
+  <p class="chapeau">[À COMPLÉTER : une phrase sur ce que tu fais aujourd'hui, pour qui, et depuis quand.]</p>
+
+  <h2>Qui je suis</h2>
+  <p class="a-completer">[À COMPLÉTER : ton parcours en quelques lignes. Pas de mission, de client ni de chiffre tant qu'ils ne sont pas vérifiés.]</p>
+
+  <h2>Un Forward Deployed Engineer, c'est quoi ?</h2>
+  <p>
+    Un ingénieur qui travaille dans les équipes du client plutôt qu'à côté : il part d'un problème métier réel, construit
+    avec les gens qui l'ont, et ramène vers le produit ce que le terrain a appris. Sur l'IA générative, cela veut dire
+    passer de la démonstration à quelque chose qui tient en production : données, agents, évaluation, coûts, adoption.
+  </p>
+  <p class="a-completer">[À COMPLÉTER : ta propre définition, et ce qui distingue ta pratique.]</p>
+
+  <h2>Ce que je fais</h2>
+  <p class="a-completer">[À COMPLÉTER : trois ou quatre types d'interventions, sans nommer de client.]</p>
+
+  <h2>Ma veille</h2>
+  <p>
+    Je suis l'IA générative en entreprise avec un outil que j'ai construit : des agents lisent mes sources, résument,
+    préparent une fiche chaque semaine et des dossiers sur les sujets que je creuse. Ce que je choisis de publier arrive ici.
+  </p>
+  <p class="compteurs">
+    <span><strong>{comptes.posts ?? 0}</strong> posts</span>
+    <span><strong>{comptes.fiches ?? 0}</strong> fiches hebdo</span>
+    <span><strong>{comptes.focus ?? 0}</strong> dossiers focus</span>
+  </p>
+
+  {posts.length > 0 && (
+    <>
+      <h3>Derniers posts</h3>
+      <ul class="liste">
+        {posts.map((p) => (
+          <li>
+            <h3><a href={`/veille/posts/${p.id}/`}>{p.data.titres?.[0] || extrait(p.data.texte, 80)}</a></h3>
+            <p class="meta"><span>{dateFr(p.data.publie_le)}</span></p>
+            <p>{extrait(p.data.texte)}</p>
+          </li>
+        ))}
+      </ul>
+    </>
+  )}
+
+  {(fiches.length > 0 || focus.length > 0) && (
+    <div class="grille" style="margin-top:1.5rem">
+      {fiches.map((f) => (
+        <div class="carte">
+          <h3>Dernière fiche hebdo</h3>
+          <p><a href={`/veille/fiches/${f.id}/`}>{f.data.titre || f.id}</a></p>
+          <p class="meta"><span>{f.data.periode || dateFr(f.data.valide_le)}</span></p>
+        </div>
+      ))}
+      {focus.map((f) => (
+        <div class="carte">
+          <h3>Dernier dossier focus</h3>
+          <p><a href={`/veille/focus/${f.id}/`}>{f.data.dossier?.titre || f.data.cadre?.titre || f.id}</a></p>
+          <p class="meta"><span>{dateFr(f.data.pret_le)}</span></p>
+        </div>
+      ))}
+    </div>
+  )}
+
+  <p style="margin-top:1rem"><a href="/veille/">Toute la veille →</a></p>
+
+  <section class="appel">
+    <h2 style="margin-top:0">Me contacter</h2>
+    <p>[À COMPLÉTER : adresse e-mail ou lien LinkedIn, et ce pour quoi on peut te solliciter.]</p>
+  </section>
+</Base>

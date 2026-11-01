@@ -1,0 +1,83 @@
+---
+/** Une fiche hebdo : en une phrase, jalons, prêt pour la production, expérimental, à tester, questions, sources numérotées. */
+import { getCollection } from 'astro:content';
+import Base from '../../../layouts/Base.astro';
+import Refs from '../../../components/Refs.astro';
+import Sources from '../../../components/Sources.astro';
+import Themes from '../../../components/Themes.astro';
+import { dateFr } from '../../../lib/format';
+
+export async function getStaticPaths() {
+  return (await getCollection('fiches')).map((f) => ({ params: { id: f.id }, props: { fiche: f } }));
+}
+
+const { fiche } = Astro.props;
+const d = fiche.data;
+const titre = d.titre || fiche.id;
+---
+
+<Base titre={titre} description={d.en_une_phrase ?? undefined}>
+  <p><a href="/veille/#fiches">← Fiches hebdo</a></p>
+  <h1>{titre}</h1>
+  <p class="meta">
+    {d.periode && <span>{d.periode}</span>}
+    {d.valide_le && <span>validée le {dateFr(d.valide_le)}</span>}
+    {d.semaine != null && <span>semaine {d.semaine}</span>}
+    {d.modele?.applique && <span>rédigée avec {d.modele.applique}</span>}
+  </p>
+  <p><Themes themes={d.themes} /></p>
+
+  {d.en_une_phrase && <p class="chapeau">{d.en_une_phrase}</p>}
+
+  {(d.jalons ?? []).length > 0 && (
+    <>
+      <h2>Jalons</h2>
+      <ul>
+        {d.jalons!.map((j) => (
+          <li>
+            {j.date && <strong>{dateFr(j.date)} — </strong>}
+            {j.texte}
+            <Refs refs={j.refs} />
+          </li>
+        ))}
+      </ul>
+    </>
+  )}
+
+  {(d.pret_prod ?? []).length > 0 && (
+    <>
+      <h2>Prêt pour la production</h2>
+      <ul>{d.pret_prod!.map((t) => <li>{t}</li>)}</ul>
+    </>
+  )}
+
+  {(d.experimental ?? []).length > 0 && (
+    <>
+      <h2>Expérimental</h2>
+      <ul>{d.experimental!.map((t) => <li>{t}</li>)}</ul>
+    </>
+  )}
+
+  {(d.a_tester ?? []).length > 0 && (
+    <>
+      <h2>À tester</h2>
+      <ul>
+        {d.a_tester!.map((a) => (
+          <li>
+            {a.texte}
+            <Refs refs={a.refs} />
+          </li>
+        ))}
+      </ul>
+    </>
+  )}
+
+  {(d.questions ?? []).length > 0 && (
+    <>
+      <h2>Questions ouvertes</h2>
+      <ul>{d.questions!.map((q) => <li>{q.texte}</li>)}</ul>
+    </>
+  )}
+
+  <Sources sources={d.sources} />
+</Base>

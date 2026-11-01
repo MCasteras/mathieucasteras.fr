@@ -1,0 +1,119 @@
+---
+/** Un dossier focus : cadre, verdict, en bref, fonctionnement, benchmarks, alternatives, terrain, limites, questions, sources. */
+import { getCollection } from 'astro:content';
+import Base from '../../../layouts/Base.astro';
+import Refs from '../../../components/Refs.astro';
+import Sources from '../../../components/Sources.astro';
+import Themes from '../../../components/Themes.astro';
+import { dateFr } from '../../../lib/format';
+
+export async function getStaticPaths() {
+  return (await getCollection('focus')).map((f) => ({ params: { id: f.id }, props: { focus: f } }));
+}
+
+const { focus } = Astro.props;
+const d = focus.data;
+const dossier = d.dossier ?? {};
+const cadre = d.cadre ?? {};
+const titre = dossier.titre || cadre.titre || focus.id;
+const etapes = dossier.fonctionnement?.etapes ?? [];
+---
+
+<Base titre={titre} description={dossier.verdict ?? undefined} large>
+  <p><a href="/veille/#focus">← Dossiers focus</a></p>
+  <h1>{titre}</h1>
+  <p class="meta">
+    {d.pret_le && <span>prêt le {dateFr(d.pret_le)}</span>}
+    {d.maj_le && <span>mis à jour le {dateFr(d.maj_le)}</span>}
+    {dossier.stats?.lues != null && <span>{dossier.stats.lues} sources lues{dossier.stats.retenues != null && `, ${dossier.stats.retenues} retenues`}</span>}
+    {d.modele?.applique && <span>rédigé avec {d.modele.applique}</span>}
+  </p>
+  <p><Themes themes={cadre.themes} /></p>
+
+  {dossier.verdict && <p class="chapeau">{dossier.verdict}</p>}
+
+  {(dossier.en_bref ?? []).length > 0 && (
+    <>
+      <h2>En bref</h2>
+      <ul>{dossier.en_bref!.map((t) => <li>{t}</li>)}</ul>
+    </>
+  )}
+
+  {(cadre.perimetre?.inclus?.length || cadre.perimetre?.exclus?.length) ? (
+    <>
+      <h2>Périmètre</h2>
+      <dl class="fiche-dl">
+        {cadre.perimetre?.inclus?.length ? <><dt>Inclus</dt>{cadre.perimetre.inclus.map((t) => <dd>{t}</dd>)}</> : null}
+        {cadre.perimetre?.exclus?.length ? <><dt>Exclus</dt>{cadre.perimetre.exclus.map((t) => <dd>{t}</dd>)}</> : null}
+      </dl>
+    </>
+  ) : null}
+
+  {(etapes.length > 0 || dossier.fonctionnement?.texte) && (
+    <>
+      <h2>Comment ça marche</h2>
+      {etapes.length > 0 && (
+        <ol>
+          {etapes.map((e) => (
+            <li>
+              {e.titre && <strong>{e.titre}{e.nouveau && <span class="etiquette" style="margin-left:.4rem">nouveau</span>} — </strong>}
+              {e.texte}
+            </li>
+          ))}
+        </ol>
+      )}
+      {dossier.fonctionnement?.texte && <p>{dossier.fonctionnement.texte}</p>}
+    </>
+  )}
+
+  {(dossier.benchmarks ?? []).length > 0 && (
+    <>
+      <h2>Benchmarks</h2>
+      <table>
+        <thead><tr><th>Nom</th><th>Annoncé</th><th>Indépendant</th><th>Par</th><th>Fiabilité</th><th>Réf.</th></tr></thead>
+        <tbody>
+          {dossier.benchmarks!.map((b) => (
+            <tr><td>{b.nom}</td><td>{b.annonce}</td><td>{b.independant}</td><td>{b.par}</td><td>{b.fiabilite}</td><td><Refs refs={b.refs} /></td></tr>
+          ))}
+        </tbody>
+      </table>
+    </>
+  )}
+
+  {(dossier.alternatives ?? []).length > 0 && (
+    <>
+      <h2>Alternatives</h2>
+      <table>
+        <thead><tr><th>Nom</th><th>Licence</th><th>Maturité</th><th>Pour</th><th>Contre</th><th>Réf.</th></tr></thead>
+        <tbody>
+          {dossier.alternatives!.map((a) => (
+            <tr><td>{a.nom}</td><td>{a.licence}</td><td>{a.maturite}</td><td>{a.pour}</td><td>{a.contre}</td><td><Refs refs={a.refs} /></td></tr>
+          ))}
+        </tbody>
+      </table>
+    </>
+  )}
+
+  {(dossier.terrain ?? []).length > 0 && (
+    <>
+      <h2>Pour le terrain</h2>
+      <ul>{dossier.terrain!.map((t) => <li>{t.texte}<Refs refs={t.refs} /></li>)}</ul>
+    </>
+  )}
+
+  {(dossier.limites ?? []).length > 0 && (
+    <>
+      <h2>Limites et inconnues</h2>
+      <ul>{dossier.limites!.map((t) => <li>{t.texte}<Refs refs={t.refs} /></li>)}</ul>
+    </>
+  )}
+
+  {(dossier.questions_ouvertes ?? []).length > 0 && (
+    <>
+      <h2>Questions ouvertes</h2>
+      <ul>{dossier.questions_ouvertes!.map((q) => <li>{q}</li>)}</ul>
+    </>
+  )}
+
+  <Sources sources={dossier.sources} />
+</Base>

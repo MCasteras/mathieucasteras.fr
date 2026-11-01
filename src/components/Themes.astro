@@ -1,0 +1,10 @@
+---
+/** Étiquettes des thèmes d'une fiche ou d'un focus. */
+import { libelleTheme } from '../data/themes';
+interface Props {
+  themes: string[] | null | undefined;
+}
+const themes = Astro.props.themes ?? [];
+---
+
+{themes.map((t) => <span class="etiquette" title={t}>{libelleTheme(t)}</span>)}

@@ -1,0 +1,18 @@
+---
+/** Renvois `[n]` d'une fiche ou d'un dossier vers la liste numérotée des sources de la même page. */
+interface Props {
+  refs: Array<number | string> | null | undefined;
+}
+const refs = (Astro.props.refs ?? []).filter((r) => r !== null && r !== '');
+---
+
+{refs.length > 0 && (
+  <span class="ref">
+    {refs.map((r, i) => (
+      <>
+        {i > 0 && ', '}
+        <a href={`#source-${r}`}>[{r}]</a>
+      </>
+    ))}
+  </span>
+)}

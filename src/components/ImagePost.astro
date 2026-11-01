@@ -1,0 +1,17 @@
+---
+/** Illustration SVG d'un post, insérée telle quelle : l'API l'a déjà nettoyée (pas de script, de lien ni de ressource externe). */
+import { FORMATS_IMAGE } from '../lib/format';
+interface Props {
+  image: { svg: string; format?: string | null; style?: string | null } | null | undefined;
+  legende?: string;
+}
+const { image, legende } = Astro.props;
+const format = image?.format ? FORMATS_IMAGE[image.format] : undefined;
+---
+
+{image?.svg && (
+  <figure class="figure" style={format ? `max-width:${Math.min(format.largeur, 640)}px;aspect-ratio:${format.largeur}/${format.hauteur}` : undefined}>
+    <div role="img" aria-label={legende ?? 'Illustration du post'} set:html={image.svg} />
+    {legende && <figcaption>{legende}</figcaption>}
+  </figure>
+)}

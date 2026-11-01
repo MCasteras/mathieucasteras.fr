@@ -1,0 +1,60 @@
+---
+/** Veille : les trois listes (posts, fiches hebdo, dossiers focus) sur une page. */
+import { getCollection } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import Themes from '../../components/Themes.astro';
+import { dateFr, extrait } from '../../lib/format';
+
+const posts = (await getCollection('posts')).sort((a, b) => (b.data.publie_le ?? '').localeCompare(a.data.publie_le ?? ''));
+const fiches = (await getCollection('fiches')).sort((a, b) => (b.data.valide_le ?? '').localeCompare(a.data.valide_le ?? ''));
+const focus = (await getCollection('focus')).sort((a, b) => (b.data.pret_le ?? '').localeCompare(a.data.pret_le ?? ''));
+---
+
+<Base titre="Veille" description="Posts, fiches hebdomadaires et dossiers focus sur l'IA générative en entreprise.">
+  <h1>Veille</h1>
+  <p class="chapeau">
+    Ce que je publie de ma veille sur l'IA générative en entreprise : des posts, une fiche par semaine, des dossiers sur
+    un sujet. Chaque source citée renvoie à l'original.
+  </p>
+
+  <h2 id="posts">Posts</h2>
+  {posts.length === 0 ? <p>Aucun post publié pour le moment.</p> : (
+    <ul class="liste">
+      {posts.map((p) => (
+        <li>
+          <h3><a href={`/veille/posts/${p.id}/`}>{p.data.titres?.[0] || extrait(p.data.texte, 80)}</a></h3>
+          <p class="meta"><span>{dateFr(p.data.publie_le)}</span>{p.data.angle && <span>{p.data.angle}</span>}</p>
+          <p>{extrait(p.data.texte)}</p>
+        </li>
+      ))}
+    </ul>
+  )}
+
+  <h2 id="fiches">Fiches hebdo</h2>
+  {fiches.length === 0 ? <p>Aucune fiche publiée pour le moment.</p> : (
+    <ul class="liste">
+      {fiches.map((f) => (
+        <li>
+          <h3><a href={`/veille/fiches/${f.id}/`}>{f.data.titre || f.id}</a></h3>
+          <p class="meta"><span>{f.data.periode || dateFr(f.data.valide_le)}</span></p>
+          <p><Themes themes={f.data.themes} /></p>
+          {f.data.en_une_phrase && <p>{f.data.en_une_phrase}</p>}
+        </li>
+      ))}
+    </ul>
+  )}
+
+  <h2 id="focus">Dossiers focus</h2>
+  {focus.length === 0 ? <p>Aucun dossier publié pour le moment.</p> : (
+    <ul class="liste">
+      {focus.map((f) => (
+        <li>
+          <h3><a href={`/veille/focus/${f.id}/`}>{f.data.dossier?.titre || f.data.cadre?.titre || f.id}</a></h3>
+          <p class="meta"><span>{dateFr(f.data.pret_le)}</span>{f.data.maj_le && <span>mis à jour le {dateFr(f.data.maj_le)}</span>}</p>
+          <p><Themes themes={f.data.cadre?.themes} /></p>
+          {f.data.dossier?.verdict && <p>{f.data.dossier.verdict}</p>}
+        </li>
+      ))}
+    </ul>
+  )}
+</Base>

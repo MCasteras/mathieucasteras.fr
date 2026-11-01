@@ -1,0 +1,41 @@
+[
+  {
+    "id": "f-exemple1",
+    "cadre": {
+      "titre": "[EXEMPLE] Un sujet de focus fictif",
+      "perimetre": { "inclus": ["[EXEMPLE] ce qui est dedans"], "exclus": ["[EXEMPLE] ce qui est dehors"] },
+      "mots_cles": ["exemple", "fictif"],
+      "themes": ["T6"]
+    },
+    "dossier": {
+      "titre": "[EXEMPLE] Dossier fictif",
+      "verdict": "[EXEMPLE] Un verdict inventé pour le jeu de test.",
+      "en_bref": ["[EXEMPLE] Premier point en bref.", "[EXEMPLE] Second point en bref."],
+      "fonctionnement": {
+        "etapes": [
+          { "titre": "[EXEMPLE] Étape un", "texte": "[EXEMPLE] Texte de l'étape un [1].", "nouveau": true },
+          { "titre": "[EXEMPLE] Étape deux", "texte": "[EXEMPLE] Texte de l'étape deux.", "nouveau": false }
+        ],
+        "texte": "[EXEMPLE] Explication d'ensemble, fictive."
+      },
+      "benchmarks": [
+        { "nom": "[EXEMPLE] Bench fictif", "annonce": "valeur annoncée fictive", "independant": "valeur indépendante fictive", "par": "[EXEMPLE] équipe fictive", "fiabilite": "non vérifié", "refs": [1] }
+      ],
+      "alternatives": [
+        { "nom": "[EXEMPLE] Alternative fictive", "licence": "Apache-2.0", "maturite": "beta", "pour": "[EXEMPLE] un avantage", "contre": "[EXEMPLE] un inconvénient", "refs": [2] }
+      ],
+      "terrain": [{ "texte": "[EXEMPLE] Un conseil pour le terrain.", "refs": [1] }],
+      "limites": [{ "texte": "[EXEMPLE] Une limite connue.", "refs": [] }],
+      "questions_ouvertes": ["[EXEMPLE] Une question ouverte ?"],
+      "sources": [
+        { "n": 1, "titre": "[EXEMPLE] Source fictive un", "source": "Blog fictif", "url": "https://example.org/focus-fictif-1", "role": "principale" },
+        { "n": 2, "titre": "[EXEMPLE] Source fictive deux", "source": "Source fermée fictive", "url": null, "role": "complément" }
+      ],
+      "stats": { "lues": 7, "retenues": 2 }
+    },
+    "pret_le": "2026-10-15T14:00:00Z",
+    "maj_le": null,
+    "modele": { "applique": "exemple-modele" },
+    "vitrine_le": "2026-10-16T09:00:00Z"
+  }
+]

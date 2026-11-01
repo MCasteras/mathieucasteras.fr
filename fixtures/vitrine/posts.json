@@ -1,0 +1,37 @@
+[
+  {
+    "id": "p-exemple1",
+    "texte": "[EXEMPLE] Trois équipes, trois façons de brancher un agent sur le même outil interne.\n\nCe que j'ai retenu de la semaine : la différence ne se joue pas sur le modèle mais sur la frontière qu'on donne à l'agent.\n\n1. Un périmètre d'outils court.\n2. Des traces lisibles par les métiers.\n3. Une sortie structurée, vérifiée avant d'écrire.\n\nCe post est un exemple généré pour le jeu de test du site : il ne cite aucun article réel.",
+    "titres": ["[EXEMPLE] Un article fictif sur les agents", "[EXEMPLE] Un second article fictif"],
+    "angle": "terrain",
+    "longueur": "moyen",
+    "cree_le": "2026-10-27T09:00:00Z",
+    "publie_le": "2026-10-28",
+    "url_linkedin": "https://www.linkedin.com/posts/exemple-fictif",
+    "image": {
+      "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"1080\" height=\"1080\" viewBox=\"0 0 1080 1080\"><rect width=\"1080\" height=\"1080\" fill=\"#1b2a41\"/><circle cx=\"540\" cy=\"460\" r=\"220\" fill=\"none\" stroke=\"#f2c14e\" stroke-width=\"18\"/><rect x=\"420\" y=\"340\" width=\"240\" height=\"240\" rx=\"24\" fill=\"#f2c14e\" opacity=\"0.9\"/><text x=\"540\" y=\"820\" font-family=\"sans-serif\" font-size=\"56\" fill=\"#ffffff\" text-anchor=\"middle\">Exemple factice</text></svg>",
+      "format": "carre",
+      "style": "schema"
+    },
+    "modele": { "applique": "exemple-modele" },
+    "vitrine_le": "2026-10-29T18:00:00Z",
+    "sources": [
+      { "titre": "[EXEMPLE] Un article fictif sur les agents", "source": "Blog fictif", "url": "https://example.org/article-fictif-agents" },
+      { "titre": "[EXEMPLE] Un second article fictif", "source": "Lettre privée fictive" }
+    ]
+  },
+  {
+    "id": "p-exemple2",
+    "texte": "[EXEMPLE] Post sans illustration ni lien LinkedIn, pour vérifier que la page tient sans eux.\n\nUne seule ligne de plus.",
+    "titres": ["[EXEMPLE] Article fictif sans URL publique"],
+    "angle": "analyse",
+    "longueur": "court",
+    "cree_le": "2026-10-20T09:00:00Z",
+    "publie_le": "2026-10-21",
+    "modele": null,
+    "vitrine_le": "2026-10-22T10:00:00Z",
+    "sources": [
+      { "titre": "[EXEMPLE] Article fictif sans URL publique", "source": "Source fictive", "url": null }
+    ]
+  }
+]

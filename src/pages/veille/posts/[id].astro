@@ -1,0 +1,49 @@
+---
+/** Un post publié : texte avec ses retours à la ligne, illustration, lien LinkedIn, sources. */
+import { getCollection } from 'astro:content';
+import Base from '../../../layouts/Base.astro';
+import ImagePost from '../../../components/ImagePost.astro';
+import Sources from '../../../components/Sources.astro';
+import { dateFr, extrait, paragraphes } from '../../../lib/format';
+
+export async function getStaticPaths() {
+  return (await getCollection('posts')).map((p) => ({ params: { id: p.id }, props: { post: p } }));
+}
+
+const { post } = Astro.props;
+const d = post.data;
+const titre = d.titres?.[0] || extrait(d.texte, 80) || 'Post';
+---
+
+<Base titre={titre} description={extrait(d.texte, 200)}>
+  <p><a href="/veille/#posts">← Posts</a></p>
+  <h1>{titre}</h1>
+  <p class="meta">
+    <span>Publié le {dateFr(d.publie_le)}</span>
+    {d.angle && <span>angle : {d.angle}</span>}
+    {d.modele?.applique && <span>rédigé avec {d.modele.applique}</span>}
+  </p>
+
+  <ImagePost image={d.image} legende={d.image?.style ? `Illustration (${d.image.style})` : undefined} />
+
+  <div class="post-texte">
+    {paragraphes(d.texte).map((lignes) => (
+      <p>
+        {lignes.map((l, i) => (
+          <>
+            {i > 0 && <br />}
+            {l}
+          </>
+        ))}
+      </p>
+    ))}
+  </div>
+
+  {d.url_linkedin && (
+    <p>
+      <a href={d.url_linkedin} rel="noopener">Voir le post sur LinkedIn →</a>
+    </p>
+  )}
+
+  <Sources sources={d.sources} titre="Articles cités" />
+</Base>

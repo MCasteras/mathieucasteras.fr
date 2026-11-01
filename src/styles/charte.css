@@ -1,0 +1,352 @@
+/* Charte du site : polices système, deux thèmes (clair par défaut, sombre selon le système ou le choix du visiteur),
+   une colonne lisible au téléphone. Aucune ressource chargée depuis un tiers. */
+
+:root {
+  color-scheme: light;
+  --fond: #faf8f4;
+  --fond-2: #f0ece4;
+  --encre: #1c1b19;
+  --encre-2: #5d5a52;
+  --trait: #d9d3c7;
+  --accent: #0d5c63;
+  --accent-2: #b45309;
+  --police: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  --mesure: 42rem;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --fond: #161615;
+    --fond-2: #22221f;
+    --encre: #ebe7df;
+    --encre-2: #a7a297;
+    --trait: #3a3833;
+    --accent: #7fc8cf;
+    --accent-2: #f0a85a;
+  }
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --fond: #161615;
+  --fond-2: #22221f;
+  --encre: #ebe7df;
+  --encre-2: #a7a297;
+  --trait: #3a3833;
+  --accent: #7fc8cf;
+  --accent-2: #f0a85a;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  font-family: var(--police);
+  font-size: 106.25%;
+  line-height: 1.55;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--fond);
+  color: var(--encre);
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+
+a {
+  color: var(--accent);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.15em;
+}
+
+a:hover {
+  text-decoration-thickness: 2px;
+}
+
+h1,
+h2,
+h3 {
+  line-height: 1.2;
+  margin: 0 0 0.5em;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+}
+
+h1 {
+  font-size: clamp(1.7rem, 4vw, 2.4rem);
+}
+
+h2 {
+  font-size: 1.35rem;
+  margin-top: 2em;
+}
+
+h3 {
+  font-size: 1.05rem;
+  margin-top: 1.5em;
+}
+
+p,
+ul,
+ol {
+  margin: 0 0 1em;
+}
+
+code {
+  font-family: var(--mono);
+  font-size: 0.92em;
+  background: var(--fond-2);
+  padding: 0.1em 0.3em;
+  border-radius: 3px;
+}
+
+.conteneur {
+  width: min(100% - 2rem, var(--mesure));
+  margin-inline: auto;
+}
+
+.large {
+  --mesure: 60rem;
+}
+
+/* En-tête et navigation */
+.entete {
+  border-bottom: 1px solid var(--trait);
+}
+
+.entete .conteneur {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 1.25rem;
+  padding: 0.9rem 0;
+}
+
+.marque {
+  font-weight: 700;
+  text-decoration: none;
+  color: var(--encre);
+  margin-right: auto;
+}
+
+.nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1rem;
+  font-size: 0.95rem;
+}
+
+.nav a {
+  color: var(--encre-2);
+  text-decoration: none;
+  padding: 0.2rem 0;
+  border-bottom: 2px solid transparent;
+}
+
+.nav a[aria-current="page"],
+.nav a:hover {
+  color: var(--encre);
+  border-bottom-color: var(--accent);
+}
+
+.theme {
+  background: none;
+  border: 1px solid var(--trait);
+  border-radius: 999px;
+  color: var(--encre-2);
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.85rem;
+  padding: 0.2rem 0.7rem;
+}
+
+main {
+  flex: 1;
+  padding: 2rem 0 3rem;
+}
+
+.pied {
+  border-top: 1px solid var(--trait);
+  color: var(--encre-2);
+  font-size: 0.85rem;
+  padding: 1.25rem 0;
+}
+
+/* Blocs de contenu */
+.chapeau {
+  font-size: 1.15rem;
+  color: var(--encre-2);
+  max-width: 36rem;
+}
+
+.meta {
+  color: var(--encre-2);
+  font-size: 0.88rem;
+  margin: 0 0 1.25rem;
+}
+
+.meta > * + *::before {
+  content: " · ";
+}
+
+.etiquette {
+  display: inline-block;
+  font-size: 0.78rem;
+  background: var(--fond-2);
+  border: 1px solid var(--trait);
+  border-radius: 999px;
+  padding: 0.05rem 0.55rem;
+  color: var(--encre-2);
+  margin: 0 0.2rem 0.2rem 0;
+}
+
+.liste {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.liste > li {
+  padding: 1rem 0;
+  border-top: 1px solid var(--trait);
+}
+
+.liste > li:last-child {
+  border-bottom: 1px solid var(--trait);
+}
+
+.liste h3 {
+  margin: 0 0 0.25rem;
+}
+
+.liste p {
+  margin: 0.25rem 0 0;
+}
+
+.grille {
+  display: grid;
+  gap: 1.25rem;
+  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+}
+
+.carte {
+  border: 1px solid var(--trait);
+  border-radius: 8px;
+  padding: 1rem 1.1rem;
+  background: var(--fond-2);
+}
+
+.carte h3 {
+  margin-top: 0;
+}
+
+.compteurs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.5rem;
+  color: var(--encre-2);
+  font-size: 0.95rem;
+}
+
+.compteurs strong {
+  color: var(--encre);
+  font-size: 1.3rem;
+}
+
+.figure {
+  margin: 1.5rem 0;
+}
+
+.figure svg {
+  width: 100%;
+  height: auto;
+  border-radius: 6px;
+  display: block;
+}
+
+.figure figcaption {
+  font-size: 0.85rem;
+  color: var(--encre-2);
+  margin-top: 0.4rem;
+}
+
+.post-texte p {
+  white-space: pre-line;
+}
+
+.sources li {
+  margin-bottom: 0.35rem;
+}
+
+.sources .source-nom {
+  color: var(--encre-2);
+}
+
+.ref {
+  font-size: 0.8em;
+  color: var(--accent);
+  vertical-align: super;
+  margin-left: 0.1em;
+}
+
+.a-completer {
+  background: color-mix(in srgb, var(--accent-2) 18%, transparent);
+  border-left: 3px solid var(--accent-2);
+  padding: 0.6rem 0.9rem;
+  border-radius: 0 6px 6px 0;
+  color: var(--encre);
+}
+
+.bandeau-exemple {
+  background: color-mix(in srgb, var(--accent-2) 22%, transparent);
+  color: var(--encre);
+  font-size: 0.88rem;
+  text-align: center;
+  padding: 0.4rem 1rem;
+}
+
+.appel {
+  margin-top: 2.5rem;
+  padding: 1.25rem 1.4rem;
+  border: 1px solid var(--trait);
+  border-radius: 8px;
+}
+
+dl.fiche-dl dt {
+  font-weight: 650;
+  margin-top: 1rem;
+}
+
+dl.fiche-dl dd {
+  margin: 0.25rem 0 0;
+}
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: 0.92rem;
+  margin-bottom: 1em;
+}
+
+th,
+td {
+  text-align: left;
+  padding: 0.4rem 0.6rem;
+  border-bottom: 1px solid var(--trait);
+  vertical-align: top;
+}
+
+@media (max-width: 40rem) {
+  table {
+    display: block;
+    overflow-x: auto;
+  }
+}

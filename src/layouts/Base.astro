@@ -1,0 +1,85 @@
+---
+/** Gabarit de toutes les pages : en-tête avec navigation, bascule clair/sombre, pied de page. */
+import { getEntry } from 'astro:content';
+import '../styles/charte.css';
+
+interface Props {
+  titre: string;
+  description?: string;
+  /** Image Open Graph (chemin absolu sur le site), séance 3. */
+  image?: string;
+  large?: boolean;
+}
+
+const { titre, description, image, large = false } = Astro.props;
+const SITE = 'Mathieu Casteras';
+const titreComplet = titre === SITE ? SITE : `${titre} · ${SITE}`;
+const chemin = Astro.url.pathname;
+const etat = await getEntry('vitrine', 'index');
+const exemple = etat?.data.origine === 'fixtures';
+
+// Outils, Sources et Notes s'ajoutent ici quand leurs pages existent (séance 2).
+const nav = [
+  ['/', 'Accueil'],
+  ['/veille/', 'Veille'],
+] as const;
+
+function courant(href: string): 'page' | undefined {
+  if (href === '/') return chemin === '/' ? 'page' : undefined;
+  return chemin.startsWith(href) ? 'page' : undefined;
+}
+---
+
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{titreComplet}</title>
+    {description && <meta name="description" content={description} />}
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="canonical" href={new URL(chemin, Astro.site)} />
+    <meta property="og:title" content={titreComplet} />
+    {description && <meta property="og:description" content={description} />}
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={new URL(chemin, Astro.site)} />
+    {image && <meta property="og:image" content={new URL(image, Astro.site)} />}
+    <meta name="twitter:card" content={image ? 'summary_large_image' : 'summary'} />
+    <script is:inline>
+      // Avant le premier rendu : applique le thème choisi par le visiteur s'il en a mémorisé un.
+      try {
+        const t = localStorage.getItem('theme');
+        if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t;
+      } catch {}
+    </script>
+  </head>
+  <body>
+    {exemple && <div class="bandeau-exemple">Site construit sur un jeu d'exemple factice : les contenus de veille affichés ne sont pas réels.</div>}
+    <header class="entete">
+      <div class="conteneur">
+        <a class="marque" href="/">Mathieu Casteras</a>
+        <nav class="nav" aria-label="Navigation principale">
+          {nav.map(([href, label]) => <a href={href} aria-current={courant(href)}>{label}</a>)}
+        </nav>
+        <button class="theme" type="button" id="bascule-theme" aria-label="Changer de thème">Thème</button>
+      </div>
+    </header>
+    <main class:list={['conteneur', { large }]}>
+      <slot />
+    </main>
+    <footer class="pied">
+      <div class="conteneur">
+        <p>Mathieu Casteras, Forward Deployed Engineer. Les contenus de veille viennent de mon outil privé, publiés ici quand je les y marque. Aucun traqueur, aucune ressource tierce.</p>
+      </div>
+    </footer>
+    <script is:inline>
+      // Bascule : clair → sombre → système. Le choix est gardé dans le navigateur du visiteur, et nulle part ailleurs.
+      document.getElementById('bascule-theme')?.addEventListener('click', () => {
+        const h = document.documentElement;
+        const suivant = { light: 'dark', dark: '', '': 'light' }[h.dataset.theme || ''] ?? '';
+        if (suivant) h.dataset.theme = suivant; else delete h.dataset.theme;
+        try { suivant ? localStorage.setItem('theme', suivant) : localStorage.removeItem('theme'); } catch {}
+      });
+    </script>
+  </body>
+</html>

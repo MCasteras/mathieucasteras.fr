@@ -1,0 +1,44 @@
+---
+/** Liste de sources citées : chaque source pointe vers l'original quand son URL est publique, sinon titre et nom sans lien. */
+interface Source {
+  n?: number | string | null;
+  titre?: string | null;
+  source?: string | null;
+  url?: string | null;
+  role?: string | null;
+  label?: string | null;
+}
+interface Props {
+  sources: Source[] | null | undefined;
+  titre?: string;
+}
+const { sources, titre = 'Sources' } = Astro.props;
+const liste = (sources ?? []).filter((s) => s.titre || s.source || s.url);
+const numerotee = liste.some((s) => s.n != null);
+---
+
+{liste.length > 0 && (
+  <section class="sources">
+    <h2>{titre}</h2>
+    {numerotee ? (
+      <ol>
+        {liste.map((s) => (
+          <li id={s.n != null ? `source-${s.n}` : undefined} value={typeof s.n === 'number' ? s.n : undefined}>
+            {s.url ? <a href={s.url} rel="noopener">{s.titre || s.url}</a> : <span>{s.titre || 'Sans titre'}</span>}
+            {(s.source || s.label) && <span class="source-nom"> — {s.source || s.label}</span>}
+            {s.role && <span class="source-nom"> ({s.role})</span>}
+          </li>
+        ))}
+      </ol>
+    ) : (
+      <ul>
+        {liste.map((s) => (
+          <li>
+            {s.url ? <a href={s.url} rel="noopener">{s.titre || s.url}</a> : <span>{s.titre || 'Sans titre'}</span>}
+            {s.source && <span class="source-nom"> — {s.source}</span>}
+          </li>
+        ))}
+      </ul>
+    )}
+  </section>
+)}

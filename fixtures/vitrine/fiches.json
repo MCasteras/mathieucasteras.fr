@@ -1,0 +1,25 @@
+[
+  {
+    "id": "2026-W43-T6-T11",
+    "titre": "[EXEMPLE] Agents et développement assisté, semaine fictive",
+    "themes": ["T6", "T11"],
+    "periode": "du 20 au 24 octobre 2026",
+    "semaine": 3,
+    "valide_le": "2026-10-24T16:30:00Z",
+    "en_une_phrase": "[EXEMPLE] Une phrase de synthèse inventée pour le jeu de test.",
+    "jalons": [
+      { "date": "2026-10-21", "texte": "[EXEMPLE] Un jalon fictif avec renvoi.", "refs": [1] },
+      { "date": "2026-10-23", "texte": "[EXEMPLE] Un second jalon fictif sans renvoi.", "refs": [] }
+    ],
+    "pret_prod": ["[EXEMPLE] Un élément prêt pour la production (fictif)."],
+    "experimental": ["[EXEMPLE] Un élément expérimental (fictif)."],
+    "a_tester": [{ "texte": "[EXEMPLE] Quelque chose à tester, fictif.", "refs": [2] }],
+    "questions": [{ "texte": "[EXEMPLE] Une question ouverte fictive ?" }],
+    "sources": [
+      { "n": 1, "label": "Blog fictif", "titre": "[EXEMPLE] Article fictif numéro un", "url": "https://example.org/fictif-1", "source": "Blog fictif" },
+      { "n": 2, "label": "Lettre privée", "titre": "[EXEMPLE] Article fictif numéro deux", "url": null, "source": "Lettre privée fictive" }
+    ],
+    "modele": { "applique": "exemple-modele" },
+    "vitrine_le": "2026-10-25T08:00:00Z"
+  }
+]
