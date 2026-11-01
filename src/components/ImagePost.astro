@@ -12,6 +12,6 @@ const format = image?.format ? FORMATS_IMAGE[image.format] : undefined;
 {image?.svg && (
   <figure class="figure" style={format ? `max-width:${Math.min(format.largeur, 640)}px;aspect-ratio:${format.largeur}/${format.hauteur}` : undefined}>
     <div role="img" aria-label={legende ?? 'Illustration du post'} set:html={image.svg} />
-    {legende && <figcaption>{legende}</figcaption>}
+    {legende && <figcaption class="mono-meta">{legende}</figcaption>}
   </figure>
 )}

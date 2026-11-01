@@ -4,7 +4,12 @@ import Base from '../layouts/Base.astro';
 ---
 
 <Base titre="Page introuvable">
-  <h1>Page introuvable</h1>
-  <p>Cette adresse ne mène nulle part : la page a peut-être été retirée de la vitrine, ou le lien est erroné.</p>
-  <p><a href="/">Retour à l'accueil</a> · <a href="/veille/">La veille</a></p>
+  <section class="hero page">
+    <div class="repere"><span class="mono-label">404</span></div>
+    <div class="contenu">
+      <h1 class="title-1">Page introuvable</h1>
+      <p class="lead">Cette adresse ne mène nulle part : la page a peut-être été retirée de la vitrine, ou le lien est erroné.</p>
+      <div class="boutons"><a class="bouton secondaire" href="/">Retour à l'accueil</a><a class="lien-action" href="/veille/">La veille →</a></div>
+    </div>
+  </section>
 </Base>

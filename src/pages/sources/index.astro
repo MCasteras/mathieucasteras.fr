@@ -1,5 +1,5 @@
 ---
-/** Sources : ce que la veille lit, groupé par type d'accès, depuis /api/vitrine/sources. */
+/** Sources : ce que la veille lit, une section à repère par type d'accès, depuis /api/vitrine/sources. */
 import { getCollection } from 'astro:content';
 import Base from '../../layouts/Base.astro';
 import Themes from '../../components/Themes.astro';
@@ -15,22 +15,30 @@ const majuscule = (t: string) => t.charAt(0).toUpperCase() + t.slice(1);
 ---
 
 <Base titre="Sources" description="Les sources que ma veille lit : blogs d'éditeurs et de praticiens, arXiv, dépôts GitHub." image="/og/sources.png">
-  <h1>Sources</h1>
-  <p class="chapeau">
-    Ce que l'outil de veille lit, tel qu'il est configuré aujourd'hui : {sources.length} sources. Chaque entrée renvoie à l'original.
-  </p>
-  {sources.length === 0 && <p>Aucune source exposée pour le moment.</p>}
-  {ordre.map((type) => (
-    <section>
-      <h2>{majuscule(type)}</h2>
-      <ul class="liste">
-        {groupes.get(type)!.map((s) => (
-          <li>
-            <h3>{s.data.url ? <a href={s.data.url} rel="noopener">{s.data.nom || s.data.url}</a> : <span>{s.data.nom || 'Sans nom'}</span>}</h3>
-            <p><Themes themes={s.data.themes} /></p>
-          </li>
-        ))}
-      </ul>
+  <section class="hero page">
+    <div class="repere"><span class="mono-label">Sources<br /><span class="compte">{sources.length}</span></span></div>
+    <div class="contenu">
+      <h1 class="title-1">Ce que ma veille lit</h1>
+      <p class="lead">Les sources telles qu'elles sont configurées aujourd'hui : {sources.length} sources. Chaque entrée renvoie à l'original.</p>
+    </div>
+  </section>
+
+  {sources.length === 0 && <section class="section"><div class="repere"></div><div class="contenu"><p class="body" style="color:var(--ink-2)">Aucune source exposée pour le moment.</p></div></section>}
+  {ordre.map((type, i) => (
+    <section class="section">
+      <div class="repere"><span class="mono-label">§ {i + 1}<br />{majuscule(type)}<br /><span class="compte">{groupes.get(type)!.length}</span></span></div>
+      <div class="contenu">
+        <ul class="liste-veille">
+          {groupes.get(type)!.map((s) => (
+            <li>
+              <div class="ligne" style="grid-template-columns:minmax(0,1fr) auto">
+                <span class="ligne-titre">{s.data.url ? <a href={s.data.url} rel="noopener" style="color:inherit;text-decoration:none">{s.data.nom || s.data.url} ↗</a> : <span>{s.data.nom || 'Sans nom'}</span>}</span>
+                <span class="etiquettes"><Themes themes={s.data.themes} /></span>
+              </div>
+            </li>
+          ))}
+        </ul>
+      </div>
     </section>
   ))}
 </Base>

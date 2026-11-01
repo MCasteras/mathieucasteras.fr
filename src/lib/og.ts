@@ -8,10 +8,12 @@ import { FORMATS_IMAGE } from './format';
 
 export const LARGEUR = 1200;
 export const HAUTEUR = 630;
-const FOND = '#1b2a41';
-const ENCRE = '#faf8f4';
-const ACCENT = '#f2c14e';
-const POLICE = "'DejaVu Sans', 'Helvetica Neue', Arial, sans-serif";
+const FOND = '#ffffff';
+const ENCRE = '#111111';
+const ACCENT = '#0d5c63';
+const MUET = '#555555';
+const POLICE = "'Inter', 'DejaVu Sans', 'Helvetica Neue', Arial, sans-serif";
+const MONO = "'JetBrains Mono', 'DejaVu Sans Mono', Menlo, monospace";
 
 const echapper = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
@@ -46,10 +48,11 @@ export function svgCarte(titre: string, sousTitre = 'Mathieu Casteras · Forward
   const texte = L.map((l, i) => `<tspan x="80" y="${Math.round(debut + i * interligne)}">${echapper(l)}</tspan>`).join('');
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${LARGEUR}" height="${HAUTEUR}" viewBox="0 0 ${LARGEUR} ${HAUTEUR}">
 <rect width="${LARGEUR}" height="${HAUTEUR}" fill="${FOND}"/>
-<rect x="80" y="88" width="72" height="8" fill="${ACCENT}"/>
-<text font-family="${POLICE}" font-size="${taille}" font-weight="bold" fill="${ENCRE}">${texte}</text>
-<text x="80" y="548" font-family="${POLICE}" font-size="28" fill="${ENCRE}" opacity="0.85">${echapper(sousTitre)}</text>
-<text x="${LARGEUR - 80}" y="548" font-family="${POLICE}" font-size="28" fill="${ACCENT}" text-anchor="end">${echapper(site)}</text>
+<rect x="80" y="80" width="1040" height="1" fill="${ENCRE}"/>
+<text x="80" y="118" font-family="${MONO}" font-size="20" fill="${ACCENT}">§</text>
+<text font-family="${POLICE}" font-size="${taille}" font-weight="600" letter-spacing="-1.5" fill="${ENCRE}">${texte}</text>
+<text x="80" y="548" font-family="${MONO}" font-size="22" fill="${MUET}">${echapper(sousTitre)}</text>
+<text x="${LARGEUR - 80}" y="548" font-family="${MONO}" font-size="22" fill="${ACCENT}" text-anchor="end">${echapper(site)}</text>
 </svg>`;
 }
 

@@ -1,0 +1,21 @@
+---
+/** Une ligne de la liste de veille : date ISO · type (en accent) · titre, toute la ligne est le lien. Extrait facultatif. */
+interface Props {
+  href: string;
+  date?: string | null;
+  type: string;
+  titre: string;
+  extrait?: string | null;
+}
+const { href, date, type, titre, extrait } = Astro.props;
+const jour = (date ?? '').slice(0, 10);
+---
+
+<li>
+  <a class="ligne" href={href}>
+    <span class="mono-meta">{jour}</span>
+    <span class="mono-meta type">{type}</span>
+    <span class="ligne-titre">{titre}</span>
+    {extrait && <span class="ligne-extrait">{extrait}</span>}
+  </a>
+</li>

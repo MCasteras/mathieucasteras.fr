@@ -17,103 +17,115 @@ const dossier = d.dossier ?? {};
 const cadre = d.cadre ?? {};
 const titre = dossier.titre || cadre.titre || focus.id;
 const etapes = dossier.fonctionnement?.etapes ?? [];
+
+/** Les sections présentes, numérotées dans l'ordre d'affichage. */
+const sections: string[] = [];
+const num = (nom: string) => {
+  sections.push(nom);
+  return sections.length;
+};
+const aEnBref = (dossier.en_bref ?? []).length > 0;
+const aPerimetre = Boolean(cadre.perimetre?.inclus?.length || cadre.perimetre?.exclus?.length);
+const aFonctionnement = etapes.length > 0 || Boolean(dossier.fonctionnement?.texte);
+const aBenchmarks = (dossier.benchmarks ?? []).length > 0;
+const aAlternatives = (dossier.alternatives ?? []).length > 0;
+const aTerrain = (dossier.terrain ?? []).length > 0;
+const aLimites = (dossier.limites ?? []).length > 0;
+const aQuestions = (dossier.questions_ouvertes ?? []).length > 0;
 ---
 
-<Base titre={titre} description={dossier.verdict ?? undefined} image={`/og/focus-${focus.id}.png`} large>
-  <p><a href="/veille/#focus">← Dossiers focus</a></p>
-  <h1>{titre}</h1>
-  <p class="meta">
-    {d.pret_le && <span>prêt le {dateFr(d.pret_le)}</span>}
-    {d.maj_le && <span>mis à jour le {dateFr(d.maj_le)}</span>}
-    {dossier.stats?.lues != null && <span>{dossier.stats.lues} sources lues{dossier.stats.retenues != null && `, ${dossier.stats.retenues} retenues`}</span>}
-    {d.modele?.applique && <span>rédigé avec {d.modele.applique}</span>}
-  </p>
-  <p><Themes themes={cadre.themes} /></p>
+<Base titre={titre} description={dossier.verdict ?? undefined} image={`/og/focus-${focus.id}.png`}>
+  <section class="hero page">
+    <div class="repere">
+      <span class="mono-label"><a href="/veille/#focus" style="color:inherit;text-decoration:none">← Dossiers focus</a></span>
+      <p class="meta"><span class="type">focus</span>{dossier.stats?.lues != null && <span>{dossier.stats.lues} lues{dossier.stats.retenues != null && `, ${dossier.stats.retenues} retenues`}</span>}</p>
+    </div>
+    <div class="contenu">
+      <h1 class="title-1">{titre}</h1>
+      <p class="meta">
+        {d.pret_le && <span>prêt le {dateFr(d.pret_le)}</span>}
+        {d.maj_le && <span>mis à jour le {dateFr(d.maj_le)}</span>}
+        {d.modele?.applique && <span>rédigé avec {d.modele.applique}</span>}
+      </p>
+      <div class="etiquettes"><Themes themes={cadre.themes} /></div>
+      {dossier.verdict && <p class="lead" style="margin-top:var(--space-3)">{dossier.verdict}</p>}
+    </div>
+  </section>
 
-  {dossier.verdict && <p class="chapeau">{dossier.verdict}</p>}
-
-  {(dossier.en_bref ?? []).length > 0 && (
-    <>
-      <h2>En bref</h2>
-      <ul>{dossier.en_bref!.map((t) => <li>{t}</li>)}</ul>
-    </>
+  {aEnBref && (
+    <section class="section"><div class="repere"><span class="mono-label">§ {num('En bref')}<br />En bref</span></div>
+      <div class="contenu bloc"><ul>{dossier.en_bref!.map((t) => <li>{t}</li>)}</ul></div></section>
   )}
 
-  {(cadre.perimetre?.inclus?.length || cadre.perimetre?.exclus?.length) ? (
-    <>
-      <h2>Périmètre</h2>
-      <dl class="fiche-dl">
-        {cadre.perimetre?.inclus?.length ? <><dt>Inclus</dt>{cadre.perimetre.inclus.map((t) => <dd>{t}</dd>)}</> : null}
-        {cadre.perimetre?.exclus?.length ? <><dt>Exclus</dt>{cadre.perimetre.exclus.map((t) => <dd>{t}</dd>)}</> : null}
-      </dl>
-    </>
-  ) : null}
-
-  {(etapes.length > 0 || dossier.fonctionnement?.texte) && (
-    <>
-      <h2>Comment ça marche</h2>
-      {etapes.length > 0 && (
-        <ol>
-          {etapes.map((e) => (
-            <li>
-              {e.titre && <strong>{e.titre}{e.nouveau && <span class="etiquette" style="margin-left:.4rem">nouveau</span>} — </strong>}
-              {e.texte}
-            </li>
-          ))}
-        </ol>
-      )}
-      {dossier.fonctionnement?.texte && <p>{dossier.fonctionnement.texte}</p>}
-    </>
+  {aPerimetre && (
+    <section class="section"><div class="repere"><span class="mono-label">§ {num('Périmètre')}<br />Périmètre</span></div>
+      <div class="contenu bloc">
+        <dl class="fiche-dl">
+          {cadre.perimetre?.inclus?.length ? <><dt>Inclus</dt>{cadre.perimetre.inclus.map((t) => <dd>{t}</dd>)}</> : null}
+          {cadre.perimetre?.exclus?.length ? <><dt>Exclus</dt>{cadre.perimetre.exclus.map((t) => <dd>{t}</dd>)}</> : null}
+        </dl>
+      </div></section>
   )}
 
-  {(dossier.benchmarks ?? []).length > 0 && (
-    <>
-      <h2>Benchmarks</h2>
-      <table>
-        <thead><tr><th>Nom</th><th>Annoncé</th><th>Indépendant</th><th>Par</th><th>Fiabilité</th><th>Réf.</th></tr></thead>
-        <tbody>
-          {dossier.benchmarks!.map((b) => (
-            <tr><td>{b.nom}</td><td>{b.annonce}</td><td>{b.independant}</td><td>{b.par}</td><td>{b.fiabilite}</td><td><Refs refs={b.refs} /></td></tr>
-          ))}
-        </tbody>
-      </table>
-    </>
+  {aFonctionnement && (
+    <section class="section"><div class="repere"><span class="mono-label">§ {num('Comment ça marche')}<br />Comment ça marche</span></div>
+      <div class="contenu bloc">
+        {etapes.length > 0 && (
+          <ol>
+            {etapes.map((e) => (
+              <li>
+                {e.titre && <strong>{e.titre}{e.nouveau && <span class="etiquette" style="margin-left:var(--space-2)">nouveau</span>} — </strong>}
+                {e.texte}
+              </li>
+            ))}
+          </ol>
+        )}
+        {dossier.fonctionnement?.texte && <p>{dossier.fonctionnement.texte}</p>}
+      </div></section>
   )}
 
-  {(dossier.alternatives ?? []).length > 0 && (
-    <>
-      <h2>Alternatives</h2>
-      <table>
-        <thead><tr><th>Nom</th><th>Licence</th><th>Maturité</th><th>Pour</th><th>Contre</th><th>Réf.</th></tr></thead>
-        <tbody>
-          {dossier.alternatives!.map((a) => (
-            <tr><td>{a.nom}</td><td>{a.licence}</td><td>{a.maturite}</td><td>{a.pour}</td><td>{a.contre}</td><td><Refs refs={a.refs} /></td></tr>
-          ))}
-        </tbody>
-      </table>
-    </>
+  {aBenchmarks && (
+    <section class="section"><div class="repere"><span class="mono-label">§ {num('Benchmarks')}<br />Benchmarks</span></div>
+      <div class="contenu defilant">
+        <table>
+          <thead><tr><th>Nom</th><th>Annoncé</th><th>Indépendant</th><th>Par</th><th>Fiabilité</th><th>Réf.</th></tr></thead>
+          <tbody>
+            {dossier.benchmarks!.map((b) => (
+              <tr><td>{b.nom}</td><td>{b.annonce}</td><td>{b.independant}</td><td>{b.par}</td><td>{b.fiabilite}</td><td><Refs refs={b.refs} /></td></tr>
+            ))}
+          </tbody>
+        </table>
+      </div></section>
   )}
 
-  {(dossier.terrain ?? []).length > 0 && (
-    <>
-      <h2>Pour le terrain</h2>
-      <ul>{dossier.terrain!.map((t) => <li>{t.texte}<Refs refs={t.refs} /></li>)}</ul>
-    </>
+  {aAlternatives && (
+    <section class="section"><div class="repere"><span class="mono-label">§ {num('Alternatives')}<br />Alternatives</span></div>
+      <div class="contenu defilant">
+        <table>
+          <thead><tr><th>Nom</th><th>Licence</th><th>Maturité</th><th>Pour</th><th>Contre</th><th>Réf.</th></tr></thead>
+          <tbody>
+            {dossier.alternatives!.map((a) => (
+              <tr><td>{a.nom}</td><td>{a.licence}</td><td>{a.maturite}</td><td>{a.pour}</td><td>{a.contre}</td><td><Refs refs={a.refs} /></td></tr>
+            ))}
+          </tbody>
+        </table>
+      </div></section>
   )}
 
-  {(dossier.limites ?? []).length > 0 && (
-    <>
-      <h2>Limites et inconnues</h2>
-      <ul>{dossier.limites!.map((t) => <li>{t.texte}<Refs refs={t.refs} /></li>)}</ul>
-    </>
+  {aTerrain && (
+    <section class="section"><div class="repere"><span class="mono-label">§ {num('Pour le terrain')}<br />Pour le terrain</span></div>
+      <div class="contenu bloc"><ul>{dossier.terrain!.map((t) => <li>{t.texte}<Refs refs={t.refs} /></li>)}</ul></div></section>
   )}
 
-  {(dossier.questions_ouvertes ?? []).length > 0 && (
-    <>
-      <h2>Questions ouvertes</h2>
-      <ul>{dossier.questions_ouvertes!.map((q) => <li>{q}</li>)}</ul>
-    </>
+  {aLimites && (
+    <section class="section"><div class="repere"><span class="mono-label">§ {num('Limites et inconnues')}<br />Limites et inconnues</span></div>
+      <div class="contenu bloc"><ul>{dossier.limites!.map((t) => <li>{t.texte}<Refs refs={t.refs} /></li>)}</ul></div></section>
   )}
 
-  <Sources sources={dossier.sources} />
+  {aQuestions && (
+    <section class="section"><div class="repere"><span class="mono-label">§ {num('Questions ouvertes')}<br />Questions ouvertes</span></div>
+      <div class="contenu bloc"><ul>{dossier.questions_ouvertes!.map((q) => <li>{q}</li>)}</ul></div></section>
+  )}
+
+  <Sources sources={dossier.sources} numero={sections.length + 1} />
 </Base>

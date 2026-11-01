@@ -1,5 +1,5 @@
 ---
-/** Liste de sources citées : chaque source pointe vers l'original quand son URL est publique, sinon titre et nom sans lien. */
+/** Section « Sources » d'une page : chaque source pointe vers l'original quand son URL est publique, sinon titre et nom sans lien. */
 interface Source {
   n?: number | string | null;
   titre?: string | null;
@@ -11,34 +11,38 @@ interface Source {
 interface Props {
   sources: Source[] | null | undefined;
   titre?: string;
+  /** Numéro du repère « § n » de la section. */
+  numero?: number;
 }
-const { sources, titre = 'Sources' } = Astro.props;
+const { sources, titre = 'Sources', numero } = Astro.props;
 const liste = (sources ?? []).filter((s) => s.titre || s.source || s.url);
 const numerotee = liste.some((s) => s.n != null);
 ---
 
 {liste.length > 0 && (
-  <section class="sources">
-    <h2>{titre}</h2>
-    {numerotee ? (
-      <ol>
-        {liste.map((s) => (
-          <li id={s.n != null ? `source-${s.n}` : undefined} value={typeof s.n === 'number' ? s.n : undefined}>
-            {s.url ? <a href={s.url} rel="noopener">{s.titre || s.url}</a> : <span>{s.titre || 'Sans titre'}</span>}
-            {(s.source || s.label) && <span class="source-nom"> — {s.source || s.label}</span>}
-            {s.role && <span class="source-nom"> ({s.role})</span>}
-          </li>
-        ))}
-      </ol>
-    ) : (
-      <ul>
-        {liste.map((s) => (
-          <li>
-            {s.url ? <a href={s.url} rel="noopener">{s.titre || s.url}</a> : <span>{s.titre || 'Sans titre'}</span>}
-            {s.source && <span class="source-nom"> — {s.source}</span>}
-          </li>
-        ))}
-      </ul>
-    )}
+  <section class="section sources">
+    <div class="repere"><span class="mono-label">{numero != null && <>§ {numero}<br /></>}{titre}<br /><span class="compte">{liste.length}</span></span></div>
+    <div class="contenu">
+      {numerotee ? (
+        <ol>
+          {liste.map((s) => (
+            <li id={s.n != null ? `source-${s.n}` : undefined} value={typeof s.n === 'number' ? s.n : undefined}>
+              {s.url ? <a href={s.url} rel="noopener">{s.titre || s.url}</a> : <span>{s.titre || 'Sans titre'}</span>}
+              {(s.source || s.label) && <span class="source-nom"> — {s.source || s.label}</span>}
+              {s.role && <span class="source-nom"> ({s.role})</span>}
+            </li>
+          ))}
+        </ol>
+      ) : (
+        <ul>
+          {liste.map((s) => (
+            <li>
+              {s.url ? <a href={s.url} rel="noopener">{s.titre || s.url}</a> : <span>{s.titre || 'Sans titre'}</span>}
+              {s.source && <span class="source-nom"> — {s.source}</span>}
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
   </section>
 )}

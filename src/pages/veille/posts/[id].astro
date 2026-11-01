@@ -16,34 +16,45 @@ const titre = d.titres?.[0] || extrait(d.texte, 80) || 'Post';
 ---
 
 <Base titre={titre} description={extrait(d.texte, 200)} image={`/og/post-${post.id}.png`}>
-  <p><a href="/veille/#posts">← Posts</a></p>
-  <h1>{titre}</h1>
-  <p class="meta">
-    <span>Publié le {dateFr(d.publie_le)}</span>
-    {d.angle && <span>angle : {d.angle}</span>}
-    {d.modele?.applique && <span>rédigé avec {d.modele.applique}</span>}
-  </p>
-
-  <ImagePost image={d.image} legende={d.image?.style ? `Illustration (${d.image.style})` : undefined} />
-
-  <div class="post-texte">
-    {paragraphes(d.texte).map((lignes) => (
-      <p>
-        {lignes.map((l, i) => (
-          <>
-            {i > 0 && <br />}
-            {l}
-          </>
-        ))}
+  <section class="hero page">
+    <div class="repere">
+      <span class="mono-label"><a href="/veille/#posts" style="color:inherit;text-decoration:none">← Posts</a></span>
+      <p class="meta">
+        <span class="type">post</span>
+        <span>{(d.publie_le ?? '').slice(0, 10)}</span>
       </p>
-    ))}
-  </div>
+    </div>
+    <div class="contenu">
+      <h1 class="title-1">{titre}</h1>
+      <p class="meta">
+        <span>publié le {dateFr(d.publie_le)}</span>
+        {d.angle && <span>angle : {d.angle}</span>}
+        {d.modele?.applique && <span>rédigé avec {d.modele.applique}</span>}
+      </p>
+    </div>
+  </section>
 
-  {d.url_linkedin && (
-    <p>
-      <a href={d.url_linkedin} rel="noopener">Voir le post sur LinkedIn →</a>
-    </p>
-  )}
+  <section class="section">
+    <div class="repere"><span class="mono-label">§ 1<br />Le post</span></div>
+    <div class="contenu">
+      <ImagePost image={d.image} legende={d.image?.style ? `Illustration (${d.image.style})` : undefined} />
+      <div class="post-texte" style={d.image?.svg ? 'margin-top:var(--space-6)' : undefined}>
+        {paragraphes(d.texte).map((lignes) => (
+          <p>
+            {lignes.map((l, i) => (
+              <>
+                {i > 0 && <br />}
+                {l}
+              </>
+            ))}
+          </p>
+        ))}
+      </div>
+      {d.url_linkedin && (
+        <p style="margin-top:var(--space-5)"><a class="lien-action" href={d.url_linkedin} rel="noopener">Voir le post sur LinkedIn ↗</a></p>
+      )}
+    </div>
+  </section>
 
-  <Sources sources={d.sources} titre="Articles cités" />
+  <Sources sources={d.sources} titre="Articles cités" numero={2} />
 </Base>

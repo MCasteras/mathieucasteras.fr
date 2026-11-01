@@ -2,6 +2,12 @@
 /** Les chiffres de l'outil de veille, uniquement depuis /api/vitrine/stats (agrégats). Rien d'autre, rien de calculé ailleurs. */
 import { getEntry } from 'astro:content';
 
+interface Props {
+  /** Numéro du repère « § n » de la section. */
+  numero?: number;
+}
+const { numero = 2 } = Astro.props;
+
 interface Mois { mois: string; collectes?: number | null; retenus?: number | null; lus?: number | null }
 const stats = (await getEntry('vitrine', 'stats'))?.data as
   | { items_par_mois?: Mois[]; posts_publies?: number; fiches?: number; focus?: number }
@@ -16,25 +22,29 @@ const n = (v: number | null | undefined) => (typeof v === 'number' ? v.toLocaleS
 ---
 
 {stats && (
-  <section>
-    <h2>En chiffres</h2>
-    <p class="compteurs">
-      <span><strong>{n(stats.posts_publies)}</strong> posts publiés</span>
-      <span><strong>{n(stats.fiches)}</strong> fiches hebdo</span>
-      <span><strong>{n(stats.focus)}</strong> dossiers focus</span>
-    </p>
-    {mois.length > 0 && (
-      <table>
-        <caption class="meta">Articles par mois, douze derniers mois</caption>
-        <thead>
-          <tr><th>Mois</th><th>Collectés</th><th>Retenus</th><th>Lus</th></tr>
-        </thead>
-        <tbody>
-          {mois.map((m) => (
-            <tr><td>{libelle(m.mois)}</td><td>{n(m.collectes)}</td><td>{n(m.retenus)}</td><td>{n(m.lus)}</td></tr>
-          ))}
-        </tbody>
-      </table>
-    )}
+  <section class="section">
+    <div class="repere"><span class="mono-label">§ {numero}<br />En chiffres</span></div>
+    <div class="contenu bloc large">
+      <p class="compteurs">
+        <span><strong>{n(stats.posts_publies)}</strong> posts publiés</span>
+        <span><strong>{n(stats.fiches)}</strong> fiches hebdo</span>
+        <span><strong>{n(stats.focus)}</strong> dossiers focus</span>
+      </p>
+      {mois.length > 0 && (
+        <div class="defilant">
+          <table>
+            <caption class="mono-meta">Articles par mois, douze derniers mois</caption>
+            <thead>
+              <tr><th>Mois</th><th>Collectés</th><th>Retenus</th><th>Lus</th></tr>
+            </thead>
+            <tbody>
+              {mois.map((m) => (
+                <tr><td>{libelle(m.mois)}</td><td>{n(m.collectes)}</td><td>{n(m.retenus)}</td><td>{n(m.lus)}</td></tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
   </section>
 )}

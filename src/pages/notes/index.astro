@@ -2,23 +2,28 @@
 /** Notes : articles libres, du plus récent au plus ancien, brouillons exclus. */
 import { getCollection } from 'astro:content';
 import Base from '../../layouts/Base.astro';
-import { dateFr } from '../../lib/format';
+import LigneVeille from '../../components/LigneVeille.astro';
 
 const notes = (await getCollection('notes', (n) => !n.data.brouillon)).sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
 ---
 
 <Base titre="Notes" description="Notes de construction et retours d'expérience." image="/og/notes.png">
-  <h1>Notes</h1>
-  <p class="chapeau">Notes de construction, retours d'expérience, choses apprises en chemin.</p>
-  {notes.length === 0 ? <p>Aucune note publiée pour le moment.</p> : (
-    <ul class="liste">
-      {notes.map((n) => (
-        <li>
-          <h3><a href={`/notes/${n.id}/`}>{n.data.titre}</a></h3>
-          <p class="meta"><span>{dateFr(n.data.date.toISOString())}</span></p>
-          {n.data.resume && <p>{n.data.resume}</p>}
-        </li>
-      ))}
-    </ul>
-  )}
+  <section class="hero page">
+    <div class="repere"><span class="mono-label">Notes<br /><span class="compte">{notes.length}</span></span></div>
+    <div class="contenu">
+      <h1 class="title-1">Notes</h1>
+      <p class="lead">Notes de construction, retours d'expérience, choses apprises en chemin.</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="repere"><span class="mono-label">§ 1<br />Toutes les notes</span></div>
+    <div class="contenu">
+      {notes.length === 0 ? <p class="body" style="color:var(--ink-2)">Aucune note publiée pour le moment.</p> : (
+        <ul class="liste-veille">
+          {notes.map((n) => <LigneVeille href={`/notes/${n.id}/`} date={n.data.date.toISOString()} type="note" titre={n.data.titre} extrait={n.data.resume} />)}
+        </ul>
+      )}
+    </div>
+  </section>
 </Base>

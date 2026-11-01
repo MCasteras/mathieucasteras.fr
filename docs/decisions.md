@@ -52,3 +52,13 @@ conteneur puis on copie la release d'un bloc.
 ## 2026-11-01 — `packageManager: pnpm@8.15.4`
 Le lockfile est au format 6 (pnpm 8) ; corepack lit `packageManager` et installe la même version dans l'image Docker, sinon
 `--frozen-lockfile` refuse.
+
+## 2026-11-01 — Le site est la traduction du système de design « Mathieu Casteras »
+Système choisi par Mat après exploration sur canvas (piste A, puis A3 + A4, puis M2 « Méthode en grille ») :
+https://claude.ai/artifact/MNkRN6ZLBEuHvx3xsggQn5. `charte.css` reprend ses jetons (couleurs clair/sombre, Inter + JetBrains Mono,
+espacements base 4, système carré) et ses composants (nav numérotée, repère de section « § n » dans une colonne de marge 3/12,
+liste de veille date · type · titre, cartes de méthode, boutons). Quand le système change, c'est `charte.css` qui suit, pas l'inverse.
+
+## 2026-11-01 — Polices auto-hébergées par `@fontsource`
+Inter 400/500/600 et JetBrains Mono 400/500, sous-ensemble latin, importées dans `Base.astro` : Astro les sert depuis `/_astro/`,
+aucune requête vers Google Fonts (règle « aucune ressource tierce »). Le mono reste réservé aux repères et métadonnées, 12–13 px.

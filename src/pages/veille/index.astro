@@ -1,9 +1,9 @@
 ---
-/** Veille : les trois listes (posts, fiches hebdo, dossiers focus) sur une page. */
+/** Veille : trois sections à repère (posts, fiches hebdo, dossiers focus), en lignes de liste. */
 import { getCollection } from 'astro:content';
 import Base from '../../layouts/Base.astro';
-import Themes from '../../components/Themes.astro';
-import { dateFr, extrait } from '../../lib/format';
+import LigneVeille from '../../components/LigneVeille.astro';
+import { extrait } from '../../lib/format';
 
 const posts = (await getCollection('posts')).sort((a, b) => (b.data.publie_le ?? '').localeCompare(a.data.publie_le ?? ''));
 const fiches = (await getCollection('fiches')).sort((a, b) => (b.data.valide_le ?? '').localeCompare(a.data.valide_le ?? ''));
@@ -11,50 +11,44 @@ const focus = (await getCollection('focus')).sort((a, b) => (b.data.pret_le ?? '
 ---
 
 <Base titre="Veille" description="Posts, fiches hebdomadaires et dossiers focus sur l'IA générative en entreprise." image="/og/veille.png">
-  <h1>Veille</h1>
-  <p class="chapeau">
-    Ce que je publie de ma veille sur l'IA générative en entreprise : des posts, une fiche par semaine, des dossiers sur
-    un sujet. Chaque source citée renvoie à l'original.
-  </p>
+  <section class="hero page">
+    <div class="repere"><span class="mono-label">Veille<br /><span class="compte">{posts.length} · {fiches.length} · {focus.length}</span></span></div>
+    <div class="contenu">
+      <h1 class="title-1">Ce que je publie de ma veille</h1>
+      <p class="lead">Des posts, une fiche par semaine, des dossiers sur un sujet. Chaque source citée renvoie à l'original.</p>
+    </div>
+  </section>
 
-  <h2 id="posts">Posts</h2>
-  {posts.length === 0 ? <p>Aucun post publié pour le moment.</p> : (
-    <ul class="liste">
-      {posts.map((p) => (
-        <li>
-          <h3><a href={`/veille/posts/${p.id}/`}>{p.data.titres?.[0] || extrait(p.data.texte, 80)}</a></h3>
-          <p class="meta"><span>{dateFr(p.data.publie_le)}</span>{p.data.angle && <span>{p.data.angle}</span>}</p>
-          <p>{extrait(p.data.texte)}</p>
-        </li>
-      ))}
-    </ul>
-  )}
+  <section class="section" id="posts">
+    <div class="repere"><span class="mono-label">§ 1<br />Posts</span></div>
+    <div class="contenu">
+      {posts.length === 0 ? <p class="body" style="color:var(--ink-2)">Aucun post publié pour le moment.</p> : (
+        <ul class="liste-veille">
+          {posts.map((p) => <LigneVeille href={`/veille/posts/${p.id}/`} date={p.data.publie_le} type="post" titre={p.data.titres?.[0] || extrait(p.data.texte, 80) || p.id} extrait={extrait(p.data.texte, 140)} />)}
+        </ul>
+      )}
+    </div>
+  </section>
 
-  <h2 id="fiches">Fiches hebdo</h2>
-  {fiches.length === 0 ? <p>Aucune fiche publiée pour le moment.</p> : (
-    <ul class="liste">
-      {fiches.map((f) => (
-        <li>
-          <h3><a href={`/veille/fiches/${f.id}/`}>{f.data.titre || f.id}</a></h3>
-          <p class="meta"><span>{f.data.periode || dateFr(f.data.valide_le)}</span></p>
-          <p><Themes themes={f.data.themes} /></p>
-          {f.data.en_une_phrase && <p>{f.data.en_une_phrase}</p>}
-        </li>
-      ))}
-    </ul>
-  )}
+  <section class="section" id="fiches">
+    <div class="repere"><span class="mono-label">§ 2<br />Fiches hebdo</span></div>
+    <div class="contenu">
+      {fiches.length === 0 ? <p class="body" style="color:var(--ink-2)">Aucune fiche publiée pour le moment.</p> : (
+        <ul class="liste-veille">
+          {fiches.map((f) => <LigneVeille href={`/veille/fiches/${f.id}/`} date={f.data.valide_le} type="fiche" titre={f.data.titre || f.id} extrait={f.data.en_une_phrase} />)}
+        </ul>
+      )}
+    </div>
+  </section>
 
-  <h2 id="focus">Dossiers focus</h2>
-  {focus.length === 0 ? <p>Aucun dossier publié pour le moment.</p> : (
-    <ul class="liste">
-      {focus.map((f) => (
-        <li>
-          <h3><a href={`/veille/focus/${f.id}/`}>{f.data.dossier?.titre || f.data.cadre?.titre || f.id}</a></h3>
-          <p class="meta"><span>{dateFr(f.data.pret_le)}</span>{f.data.maj_le && <span>mis à jour le {dateFr(f.data.maj_le)}</span>}</p>
-          <p><Themes themes={f.data.cadre?.themes} /></p>
-          {f.data.dossier?.verdict && <p>{f.data.dossier.verdict}</p>}
-        </li>
-      ))}
-    </ul>
-  )}
+  <section class="section" id="focus">
+    <div class="repere"><span class="mono-label">§ 3<br />Dossiers focus</span></div>
+    <div class="contenu">
+      {focus.length === 0 ? <p class="body" style="color:var(--ink-2)">Aucun dossier publié pour le moment.</p> : (
+        <ul class="liste-veille">
+          {focus.map((f) => <LigneVeille href={`/veille/focus/${f.id}/`} date={f.data.pret_le} type="focus" titre={f.data.dossier?.titre || f.data.cadre?.titre || f.id} extrait={f.data.dossier?.verdict} />)}
+        </ul>
+      )}
+    </div>
+  </section>
 </Base>

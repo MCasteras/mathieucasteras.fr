@@ -1,16 +1,21 @@
 ---
-/** Gabarit de toutes les pages : en-tête avec navigation, bascule clair/sombre, pied de page. */
+/** Gabarit de toutes les pages, selon le système de design : nav numérotée en mono, bouton de contact, bascule de thème, pied mono. */
 import { getEntry } from 'astro:content';
+import '@fontsource/inter/latin-400.css';
+import '@fontsource/inter/latin-500.css';
+import '@fontsource/inter/latin-600.css';
+import '@fontsource/jetbrains-mono/latin-400.css';
+import '@fontsource/jetbrains-mono/latin-500.css';
 import '../styles/charte.css';
 
 interface Props {
   titre: string;
   description?: string;
+  /** Image Open Graph : `/og/<clé>.png`, voir src/pages/og. Défaut : la carte du site. */
   image?: string;
-  large?: boolean;
 }
 
-const { titre, description, image = "/og/defaut.png", large = false } = Astro.props;
+const { titre, description, image = '/og/defaut.png' } = Astro.props;
 const SITE = 'Mathieu Casteras';
 const titreComplet = titre === SITE ? SITE : `${titre} · ${SITE}`;
 const chemin = Astro.url.pathname;
@@ -18,16 +23,16 @@ const etat = await getEntry('vitrine', 'index');
 const exemple = etat?.data.origine === 'fixtures';
 
 const nav = [
-  ['/', 'Accueil'],
-  ['/veille/', 'Veille'],
-  ['/outils/', 'Outils'],
-  ['/sources/', 'Sources'],
-  ['/notes/', 'Notes'],
+  ['/#methode', '01 Méthode', '/'],
+  ['/veille/', '02 Veille', '/veille/'],
+  ['/outils/', '03 Outils', '/outils/'],
+  ['/sources/', '04 Sources', '/sources/'],
+  ['/notes/', '05 Notes', '/notes/'],
 ] as const;
 
-function courant(href: string): 'page' | undefined {
-  if (href === '/') return chemin === '/' ? 'page' : undefined;
-  return chemin.startsWith(href) ? 'page' : undefined;
+function courant(prefixe: string): 'page' | undefined {
+  if (prefixe === '/') return chemin === '/' ? 'page' : undefined;
+  return chemin.startsWith(prefixe) ? 'page' : undefined;
 }
 ---
 
@@ -44,8 +49,8 @@ function courant(href: string): 'page' | undefined {
     {description && <meta property="og:description" content={description} />}
     <meta property="og:type" content="website" />
     <meta property="og:url" content={new URL(chemin, Astro.site)} />
-    {image && <meta property="og:image" content={new URL(image, Astro.site)} />}
-    <meta name="twitter:card" content={image ? 'summary_large_image' : 'summary'} />
+    <meta property="og:image" content={new URL(image, Astro.site)} />
+    <meta name="twitter:card" content="summary_large_image" />
     <link rel="alternate" type="application/rss+xml" title="Posts" href="/veille/posts.xml" />
     <link rel="alternate" type="application/rss+xml" title="Fiches hebdo" href="/veille/fiches.xml" />
     <link rel="alternate" type="application/rss+xml" title="Notes" href="/notes.xml" />
@@ -59,23 +64,24 @@ function courant(href: string): 'page' | undefined {
     </script>
   </head>
   <body>
-    {exemple && <div class="bandeau-exemple">Site construit sur un jeu d'exemple factice : les contenus de veille affichés ne sont pas réels.</div>}
+    {exemple && <div class="bandeau-exemple">site construit sur un jeu d'exemple factice : les contenus de veille affichés ne sont pas réels</div>}
     <header class="entete">
       <div class="conteneur">
-        <a class="marque" href="/">Mathieu Casteras</a>
+        <a class="marque" href="/">MC · Mathieu Casteras</a>
         <nav class="nav" aria-label="Navigation principale">
-          {nav.map(([href, label]) => <a href={href} aria-current={courant(href)}>{label}</a>)}
+          {nav.map(([href, label, prefixe]) => <a href={href} aria-current={courant(prefixe)}>{label}</a>)}
+          <button class="theme" type="button" id="bascule-theme" aria-label="Changer de thème">Thème</button>
+          <a class="bouton" href="/#contact">Me contacter</a>
         </nav>
-        <button class="theme" type="button" id="bascule-theme" aria-label="Changer de thème">Thème</button>
       </div>
     </header>
-    <main class:list={['conteneur', { large }]}>
+    <main class="conteneur">
       <slot />
     </main>
     <footer class="pied">
       <div class="conteneur">
-        <p>Mathieu Casteras, Forward Deployed Engineer. Les contenus de veille viennent de mon outil privé, publiés ici quand je les y marque. Aucun traqueur, aucune ressource tierce.</p>
-        <p>Flux : <a href="/veille/posts.xml">posts</a> · <a href="/veille/fiches.xml">fiches hebdo</a> · <a href="/notes.xml">notes</a></p>
+        <span>mathieucasteras.fr — forward deployed engineer</span>
+        <span><a href="/veille/posts.xml">rss posts</a> · <a href="/veille/fiches.xml">fiches</a> · <a href="/notes.xml">notes</a> · aucun traqueur</span>
       </div>
     </footer>
     <script is:inline>

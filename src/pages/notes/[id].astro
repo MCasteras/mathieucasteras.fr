@@ -13,10 +13,22 @@ const { Content } = await render(note);
 ---
 
 <Base titre={note.data.titre} description={note.data.resume} image={`/og/note-${note.id}.png`}>
-  <p><a href="/notes/">← Notes</a></p>
-  <h1>{note.data.titre}</h1>
-  <p class="meta"><span>{dateFr(note.data.date.toISOString())}</span></p>
-  <div class="prose">
-    <Content />
-  </div>
+  <section class="hero page">
+    <div class="repere">
+      <span class="mono-label"><a href="/notes/" style="color:inherit;text-decoration:none">← Notes</a></span>
+      <p class="meta"><span class="type">note</span><span>{note.data.date.toISOString().slice(0, 10)}</span></p>
+    </div>
+    <div class="contenu">
+      <h1 class="title-1">{note.data.titre}</h1>
+      <p class="meta"><span>{dateFr(note.data.date.toISOString())}</span></p>
+      {note.data.resume && <p class="lead" style="margin-top:var(--space-3)">{note.data.resume}</p>}
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="repere"><span class="mono-label">§ 1<br />La note</span></div>
+    <div class="contenu prose">
+      <Content />
+    </div>
+  </section>
 </Base>

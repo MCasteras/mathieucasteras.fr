@@ -7,14 +7,29 @@ const outils = (await getCollection('outils', (o) => !o.data.brouillon)).sort((a
 ---
 
 <Base titre="Outils" description="Les outils que je construis pour mon travail de Forward Deployed Engineer." image="/og/outils.png">
-  <h1>Outils</h1>
-  <p class="chapeau">[À COMPLÉTER : pourquoi tu construis tes propres outils, en une ou deux phrases.]</p>
-  <ul class="liste">
-    {outils.map((o) => (
-      <li>
-        <h3><a href={`/outils/${o.id}/`}>{o.data.titre}</a></h3>
-        <p>{o.data.resume}</p>
-      </li>
-    ))}
-  </ul>
+  <section class="hero page">
+    <div class="repere"><span class="mono-label">Outils<br /><span class="compte">{outils.length}</span></span></div>
+    <div class="contenu">
+      <h1 class="title-1">Outils</h1>
+      <p class="lead">[À COMPLÉTER : pourquoi tu construis tes propres outils, en une ou deux phrases.]</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="repere"><span class="mono-label">§ 1<br />Les outils</span></div>
+    <div class="contenu">
+      <ul class="liste-veille">
+        {outils.map((o, i) => (
+          <li>
+            <a class="ligne" href={`/outils/${o.id}/`}>
+              <span class="mono-meta">{String(i + 1).padStart(2, '0')}</span>
+              <span class="mono-meta type">outil</span>
+              <span class="ligne-titre">{o.data.titre}</span>
+              <span class="ligne-extrait">{o.data.resume}</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
 </Base>

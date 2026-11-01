@@ -1,83 +1,97 @@
 ---
-/** Accueil : qui je suis, ce qu'est un FDE, ce que je fais, les dernières publications de la veille, l'appel au contact. */
+/** Accueil, structure M2 : la promesse, § 1 Méthode, § 2 Veille, § 3 Outils, § 4 Contact. */
 import { getCollection, getEntry } from 'astro:content';
 import Base from '../layouts/Base.astro';
-import { dateFr, extrait } from '../lib/format';
+import LigneVeille from '../components/LigneVeille.astro';
+import { extrait } from '../lib/format';
 
 const etat = await getEntry('vitrine', 'index');
 const comptes = (etat?.data.comptes ?? {}) as Record<string, number>;
-const posts = (await getCollection('posts')).sort((a, b) => (b.data.publie_le ?? '').localeCompare(a.data.publie_le ?? '')).slice(0, 3);
-const fiches = (await getCollection('fiches')).sort((a, b) => (b.data.valide_le ?? '').localeCompare(a.data.valide_le ?? '')).slice(0, 1);
-const focus = (await getCollection('focus')).sort((a, b) => (b.data.pret_le ?? '').localeCompare(a.data.pret_le ?? '')).slice(0, 1);
+
+/** Les derniers documents publiés, toutes natures confondues, par date décroissante. */
+const lignes = [
+  ...(await getCollection('posts')).map((p) => ({ href: `/veille/posts/${p.id}/`, date: p.data.publie_le, type: 'post', titre: p.data.titres?.[0] || extrait(p.data.texte, 80) || p.id })),
+  ...(await getCollection('fiches')).map((f) => ({ href: `/veille/fiches/${f.id}/`, date: f.data.valide_le, type: 'fiche', titre: f.data.titre || f.id })),
+  ...(await getCollection('focus')).map((f) => ({ href: `/veille/focus/${f.id}/`, date: f.data.pret_le, type: 'focus', titre: f.data.dossier?.titre || f.data.cadre?.titre || f.id })),
+]
+  .sort((a, b) => (b.date ?? '').localeCompare(a.date ?? ''))
+  .slice(0, 4);
 ---
 
-<Base titre="Mathieu Casteras" description="Mathieu Casteras, Forward Deployed Engineer : IA générative en entreprise, du prototype au terrain.">
-  <h1>Mathieu Casteras, Forward Deployed Engineer</h1>
-  <p class="chapeau">[À COMPLÉTER : une phrase sur ce que tu fais aujourd'hui, pour qui, et depuis quand.]</p>
-
-  <h2>Qui je suis</h2>
-  <p class="a-completer">[À COMPLÉTER : ton parcours en quelques lignes. Pas de mission, de client ni de chiffre tant qu'ils ne sont pas vérifiés.]</p>
-
-  <h2>Un Forward Deployed Engineer, c'est quoi ?</h2>
-  <p>
-    Un ingénieur qui travaille dans les équipes du client plutôt qu'à côté : il part d'un problème métier réel, construit
-    avec les gens qui l'ont, et ramène vers le produit ce que le terrain a appris. Sur l'IA générative, cela veut dire
-    passer de la démonstration à quelque chose qui tient en production : données, agents, évaluation, coûts, adoption.
-  </p>
-  <p class="a-completer">[À COMPLÉTER : ta propre définition, et ce qui distingue ta pratique.]</p>
-
-  <h2>Ce que je fais</h2>
-  <p class="a-completer">[À COMPLÉTER : trois ou quatre types d'interventions, sans nommer de client.]</p>
-
-  <h2>Ma veille</h2>
-  <p>
-    Je suis l'IA générative en entreprise avec un outil que j'ai construit : des agents lisent mes sources, résument,
-    préparent une fiche chaque semaine et des dossiers sur les sujets que je creuse. Ce que je choisis de publier arrive ici.
-  </p>
-  <p class="compteurs">
-    <span><strong>{comptes.posts ?? 0}</strong> posts</span>
-    <span><strong>{comptes.fiches ?? 0}</strong> fiches hebdo</span>
-    <span><strong>{comptes.focus ?? 0}</strong> dossiers focus</span>
-  </p>
-
-  {posts.length > 0 && (
-    <>
-      <h3>Derniers posts</h3>
-      <ul class="liste">
-        {posts.map((p) => (
-          <li>
-            <h3><a href={`/veille/posts/${p.id}/`}>{p.data.titres?.[0] || extrait(p.data.texte, 80)}</a></h3>
-            <p class="meta"><span>{dateFr(p.data.publie_le)}</span></p>
-            <p>{extrait(p.data.texte)}</p>
-          </li>
-        ))}
-      </ul>
-    </>
-  )}
-
-  {(fiches.length > 0 || focus.length > 0) && (
-    <div class="grille" style="margin-top:1.5rem">
-      {fiches.map((f) => (
-        <div class="carte">
-          <h3>Dernière fiche hebdo</h3>
-          <p><a href={`/veille/fiches/${f.id}/`}>{f.data.titre || f.id}</a></p>
-          <p class="meta"><span>{f.data.periode || dateFr(f.data.valide_le)}</span></p>
-        </div>
-      ))}
-      {focus.map((f) => (
-        <div class="carte">
-          <h3>Dernier dossier focus</h3>
-          <p><a href={`/veille/focus/${f.id}/`}>{f.data.dossier?.titre || f.data.cadre?.titre || f.id}</a></p>
-          <p class="meta"><span>{dateFr(f.data.pret_le)}</span></p>
-        </div>
-      ))}
+<Base titre="Mathieu Casteras" description="Mathieu Casteras, Forward Deployed Engineer : l'IA générative en entreprise, du prototype au terrain.">
+  <section class="hero">
+    <div class="repere">
+      <span class="mono-label">Forward Deployed<br />Engineer<br /><span class="compte">—</span><br />IA générative<br />en entreprise</span>
     </div>
-  )}
+    <div class="contenu">
+      <h1 class="display">Vos équipes ont vu des démonstrations d'IA. Je les aide à passer à quelque chose qui tient<span class="point-accent">.</span></h1>
+      <p class="lead">Des données, des agents, une évaluation, des coûts tenus, une adoption réelle. [À COMPLÉTER : une phrase sur ce que tu fais aujourd'hui, pour qui, et depuis quand.]</p>
+      <div class="boutons">
+        <a class="bouton" href="#contact">Parlons de votre cas</a>
+        <a class="bouton secondaire" href="#methode">Comment je travaille</a>
+      </div>
+    </div>
+  </section>
 
-  <p style="margin-top:1rem"><a href="/veille/">Toute la veille →</a></p>
+  <section class="section" id="methode">
+    <div class="repere"><span class="mono-label">§ 1<br />Méthode</span></div>
+    <div class="contenu">
+      <div class="cartes-methode">
+        <article class="carte-methode">
+          <span class="mono-label">01 / comprendre</span>
+          <h2 class="title-2">Le métier avant le modèle</h2>
+          <p>[À COMPLÉTER : trois lignes. Comment tu démarres, avec qui, ce que tu cherches à comprendre d'abord.]</p>
+        </article>
+        <article class="carte-methode">
+          <span class="mono-label">02 / construire</span>
+          <h2 class="title-2">Dans vos équipes, pas à côté</h2>
+          <p>[À COMPLÉTER : trois lignes. Le prototype, puis ce qui tient en production, avec les gens qui l'utiliseront.]</p>
+        </article>
+        <article class="carte-methode">
+          <span class="mono-label">03 / mesurer</span>
+          <h2 class="title-2">Évaluation, coûts, adoption</h2>
+          <p>[À COMPLÉTER : trois lignes. Ce que tu mesures, ce que tu rapportes à la direction, quand tu dis non.]</p>
+        </article>
+      </div>
+    </div>
+  </section>
 
-  <section class="appel">
-    <h2 style="margin-top:0">Me contacter</h2>
-    <p>[À COMPLÉTER : adresse e-mail ou lien LinkedIn, et ce pour quoi on peut te solliciter.]</p>
+  <section class="section" id="veille">
+    <div class="repere">
+      <span class="mono-label">§ 2<br />Veille<br /><span class="compte">{comptes.posts ?? 0} · {comptes.fiches ?? 0} · {comptes.focus ?? 0}</span></span>
+    </div>
+    <div class="contenu">
+      <p class="body prose-measure" style="color:var(--ink-2);margin-bottom:var(--space-5)">
+        Ce que je lis sur l'IA générative en entreprise, et ce que j'en pense. Une fiche par semaine, des dossiers quand un sujet le mérite,
+        tenus par des agents que j'ai construits et relus à la main.
+      </p>
+      {lignes.length === 0 ? <p class="body" style="color:var(--ink-2)">Rien de publié pour le moment.</p> : (
+        <ul class="liste-veille">
+          {lignes.map((l) => <LigneVeille {...l} />)}
+        </ul>
+      )}
+      <a class="lien-action mono" href="/veille/">→ toute la veille</a>
+    </div>
+  </section>
+
+  <section class="section" id="outils">
+    <div class="repere"><span class="mono-label">§ 3<br />Outils</span></div>
+    <div class="contenu bloc">
+      <h2 class="title-2">Veille FDE</h2>
+      <p class="body" style="color:var(--ink-2)">Un outil de veille tenu par des agents : couche LLM agnostique, SQLite, worker, vitrine publique en lecture seule. C'est lui qui alimente la section précédente.</p>
+      <a class="lien-action" href="/outils/veille/">Comment il est construit →</a>
+    </div>
+  </section>
+
+  <section class="section" id="contact">
+    <div class="repere"><span class="mono-label">§ 4<br />Contact</span></div>
+    <div class="contenu bloc">
+      <h2 class="title-1">Un sujet à défricher, une équipe à embarquer&nbsp;?</h2>
+      <p class="body" style="color:var(--ink-2)">[À COMPLÉTER : pour quoi on peut te solliciter, en une phrase. Ville, disponibilité.]</p>
+      <div class="boutons">
+        <a class="bouton" href="mailto:[À COMPLÉTER]">Écrire à Mathieu</a>
+        <a class="lien-action" href="https://www.linkedin.com/in/[À COMPLÉTER]" rel="noopener">LinkedIn ↗</a>
+      </div>
+    </div>
   </section>
 </Base>

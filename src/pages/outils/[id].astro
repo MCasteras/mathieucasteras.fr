@@ -13,12 +13,24 @@ const { Content } = await render(outil);
 ---
 
 <Base titre={outil.data.titre} description={outil.data.resume} image={`/og/outil-${outil.id}.png`}>
-  <p><a href="/outils/">← Outils</a></p>
-  <h1>{outil.data.titre}</h1>
-  <p class="chapeau">{outil.data.resume}</p>
-  {outil.data.lien && <p><a href={outil.data.lien} rel="noopener">Ouvrir l'outil →</a> <span class="meta" style="display:inline">(accès privé)</span></p>}
-  <div class="prose">
-    <Content />
-  </div>
-  {outil.id === 'veille' && <StatsVeille />}
+  <section class="hero page">
+    <div class="repere">
+      <span class="mono-label"><a href="/outils/" style="color:inherit;text-decoration:none">← Outils</a></span>
+      <p class="meta"><span class="type">outil</span>{outil.data.lien && <span>accès privé</span>}</p>
+    </div>
+    <div class="contenu">
+      <h1 class="title-1">{outil.data.titre}</h1>
+      <p class="lead">{outil.data.resume}</p>
+      {outil.data.lien && <p><a class="lien-action" href={outil.data.lien} rel="noopener">Ouvrir l'outil ↗</a></p>}
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="repere"><span class="mono-label">§ 1<br />L'outil</span></div>
+    <div class="contenu prose">
+      <Content />
+    </div>
+  </section>
+
+  {outil.id === 'veille' && <StatsVeille numero={2} />}
 </Base>
