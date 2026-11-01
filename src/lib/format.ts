@@ -39,3 +39,9 @@ export const FORMATS_IMAGE: Record<string, { largeur: number; hauteur: number }>
   portrait: { largeur: 1080, hauteur: 1350 },
   paysage: { largeur: 1200, hauteur: 627 },
 };
+
+/** Une URL `https://` vers un hôte public, ou rien : jamais un `javascript:` ni un chemin relatif dans un `href`. */
+export function urlHttps(v: string | null | undefined): string | undefined {
+  const u = (v ?? '').trim();
+  return /^https:\/\/[^\s/]+\.[^\s/]+/.test(u) ? u : undefined;
+}

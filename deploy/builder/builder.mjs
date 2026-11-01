@@ -7,6 +7,9 @@ import { timingSafeEqual } from 'node:crypto';
 
 const HISTORIQUE_MAX = 20;
 
+/** Texte venu d'une requête, rendu sûr pour une ligne de journal : caractères de contrôle retirés, longueur bornée. */
+const propre = (s) => String(s ?? '').replace(/[\x00-\x1f\x7f]+/g, ' ').trim().slice(0, 120);
+
 /**
  * @param {object} o
  * @param {(ctx: {modifie_le: string|null, motif: string}) => Promise<void>} o.construire  construit et met en ligne ; lève en cas d'échec
@@ -110,7 +113,7 @@ export function creerBuilder({ construire, lireModifieLe, secret, journal = cons
     if (req.method === 'POST' && url.pathname === '/rebuild') {
       if (!autorise(req)) return json(401, { erreur: 'jeton manquant ou invalide' });
       const force = ['1', 'true', 'oui'].includes(url.searchParams.get('force') ?? '');
-      const motif = url.searchParams.get('motif') || `webhook ${req.headers['user-agent'] ?? ''}`.trim();
+      const motif = propre(url.searchParams.get('motif')) || `webhook ${propre(req.headers['user-agent'])}`.trim();
       return json(202, { resultat: demander({ force, motif }) });
     }
     if (req.method === 'GET' && url.pathname === '/sante') return json(200, etat());

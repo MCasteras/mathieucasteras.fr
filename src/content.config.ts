@@ -9,6 +9,7 @@ import { glob } from 'astro/loaders';
 import type { Loader } from 'astro/loaders';
 import { vitrineDuBuild, type Vitrine } from './data/vitrine';
 import { slug } from './lib/format';
+import { svgSur } from './lib/svg';
 
 const texte = z.string().nullish();
 const refs = z.array(z.union([z.number(), z.string()])).nullish();
@@ -89,8 +90,13 @@ function chargeurVitrine(cle: 'posts' | 'fiches' | 'focus'): Loader {
     async load({ store, parseData, logger }) {
       const v = await vitrineDuBuild();
       store.clear();
-      for (const brut of v[cle] as Array<{ id?: unknown }>) {
+      for (const brut of v[cle] as Array<{ id?: unknown; image?: { svg?: unknown } | null }>) {
         if (typeof brut.id !== 'string' || !brut.id) continue;
+        // Second filet derrière le nettoyage de l'API : une illustration douteuse est écartée, jamais retouchée.
+        if (cle === 'posts' && brut.image && !svgSur(String(brut.image.svg ?? ''))) {
+          logger.warn(`${cle}/${brut.id} : illustration écartée (SVG refusé par le filtre du site)`);
+          brut.image = null;
+        }
         const data = await parseData({ id: brut.id, data: brut as Record<string, unknown> });
         store.set({ id: brut.id, data });
       }

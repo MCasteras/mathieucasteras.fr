@@ -62,3 +62,11 @@ liste de veille date · type · titre, cartes de méthode, boutons). Quand le sy
 ## 2026-11-01 — Polices auto-hébergées par `@fontsource`
 Inter 400/500/600 et JetBrains Mono 400/500, sous-ensemble latin, importées dans `Base.astro` : Astro les sert depuis `/_astro/`,
 aucune requête vers Google Fonts (règle « aucune ressource tierce »). Le mono reste réservé aux repères et métadonnées, 12–13 px.
+
+## 2026-11-01 — Passe sécurité : CSP sans script inline, filtre SVG, URL LinkedIn, conteneur sans privilège
+Le script de thème est dans `public/theme.js` (chargé bloquant dans `<head>`) pour une CSP `script-src 'self'` : même si un
+SVG malveillant passait le nettoyage de l'API, rien ne s'exécuterait. Second filet au build : `src/lib/svg.ts` refuse (sans
+retoucher) toute illustration qui contient un script, un gestionnaire d'événement, un lien ou une ressource externe, un
+`foreignObject` ; le post est alors publié sans image et le build le signale. `url_linkedin` n'est mis dans un `href` que si c'est
+une URL `https://`. Le journal de `site-builder` nettoie le motif et le User-Agent reçus (pas de ligne forgée). L'image tourne
+sous `node` (uid 1000, celui de `mat` sur la VM) ; `/srv/site`, `/data` et `/app` lui appartiennent.

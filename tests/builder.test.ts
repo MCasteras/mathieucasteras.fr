@@ -97,6 +97,15 @@ describe('HTTP', () => {
     expect(builds[0]).toBe('webhook VeilleFDE/2.0');
   });
 
+  it('nettoie le motif et le User-Agent avant de les journaliser', async () => {
+    const { b, lignes } = faux();
+    const base = await ecouter(b);
+    await fetch(`${base}/rebuild?force=1&motif=${encodeURIComponent('ligne un\nFAUX  : site reconstruit')}`, { method: 'POST', headers: { Authorization: 'Bearer secret-test' } });
+    await b.attendre();
+    expect(lignes.at(-1)).toContain('ligne un FAUX  : site reconstruit : site reconstruit');
+    expect(lignes.at(-1)!.split('\n').length).toBe(1);
+  });
+
   it('GET /sante décrit l’état ; le reste est 404', async () => {
     const { b } = faux();
     const base = await ecouter(b);

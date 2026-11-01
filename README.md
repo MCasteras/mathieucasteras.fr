@@ -72,6 +72,9 @@ Le conteneur `site-builder` (`deploy/Dockerfile`, `deploy/builder/serveur.mjs`) 
 - **Journal** : `/data/journal.log` (volume `site_data`) et `docker compose logs site-builder` ; `GET /sante` (sur le réseau
   `web` seulement, pas exposé par Caddy) donne le dernier build et les vingt derniers.
 
+Sécurité : CSP sans script inline (`public/theme.js` porte la bascule de thème), filtre SVG au build en plus du nettoyage
+de l'API, conteneur sans privilège (uid 1000). Un SVG refusé laisse le post sans image et une ligne dans le journal du build.
+
 Images Open Graph : générées au build dans `/og/*.png` (1200 × 630) à partir du SVG de chaque post, ou d'une carte avec le
 titre de la page ; rendu par resvg avec DejaVu Sans installée dans l'image. Aucune police n'est chargée par le navigateur.
 

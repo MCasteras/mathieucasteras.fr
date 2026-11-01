@@ -55,13 +55,8 @@ function courant(prefixe: string): 'page' | undefined {
     <link rel="alternate" type="application/rss+xml" title="Fiches hebdo" href="/veille/fiches.xml" />
     <link rel="alternate" type="application/rss+xml" title="Notes" href="/notes.xml" />
     <link rel="sitemap" href="/sitemap-index.xml" />
-    <script is:inline>
-      // Avant le premier rendu : applique le thème choisi par le visiteur s'il en a mémorisé un.
-      try {
-        const t = localStorage.getItem('theme');
-        if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t;
-      } catch {}
-    </script>
+    <!-- Thème : script externe, bloquant, pour appliquer le choix mémorisé avant le premier rendu (CSP : script-src 'self'). -->
+    <script is:inline src="/theme.js"></script>
   </head>
   <body>
     {exemple && <div class="bandeau-exemple">site construit sur un jeu d'exemple factice : les contenus de veille affichés ne sont pas réels</div>}
@@ -84,14 +79,5 @@ function courant(prefixe: string): 'page' | undefined {
         <span><a href="/veille/posts.xml">rss posts</a> · <a href="/veille/fiches.xml">fiches</a> · <a href="/notes.xml">notes</a> · aucun traqueur</span>
       </div>
     </footer>
-    <script is:inline>
-      // Bascule : clair → sombre → système. Le choix est gardé dans le navigateur du visiteur, et nulle part ailleurs.
-      document.getElementById('bascule-theme')?.addEventListener('click', () => {
-        const h = document.documentElement;
-        const suivant = { light: 'dark', dark: '', '': 'light' }[h.dataset.theme || ''] ?? '';
-        if (suivant) h.dataset.theme = suivant; else delete h.dataset.theme;
-        try { suivant ? localStorage.setItem('theme', suivant) : localStorage.removeItem('theme'); } catch {}
-      });
-    </script>
   </body>
 </html>

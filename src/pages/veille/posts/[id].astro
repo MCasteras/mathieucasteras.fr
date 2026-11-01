@@ -4,7 +4,7 @@ import { getCollection } from 'astro:content';
 import Base from '../../../layouts/Base.astro';
 import ImagePost from '../../../components/ImagePost.astro';
 import Sources from '../../../components/Sources.astro';
-import { dateFr, extrait, paragraphes } from '../../../lib/format';
+import { dateFr, extrait, paragraphes, urlHttps } from '../../../lib/format';
 
 export async function getStaticPaths() {
   return (await getCollection('posts')).map((p) => ({ params: { id: p.id }, props: { post: p } }));
@@ -13,6 +13,7 @@ export async function getStaticPaths() {
 const { post } = Astro.props;
 const d = post.data;
 const titre = d.titres?.[0] || extrait(d.texte, 80) || 'Post';
+const linkedin = urlHttps(d.url_linkedin);
 ---
 
 <Base titre={titre} description={extrait(d.texte, 200)} image={`/og/post-${post.id}.png`}>
@@ -50,8 +51,8 @@ const titre = d.titres?.[0] || extrait(d.texte, 80) || 'Post';
           </p>
         ))}
       </div>
-      {d.url_linkedin && (
-        <p style="margin-top:var(--space-5)"><a class="lien-action" href={d.url_linkedin} rel="noopener">Voir le post sur LinkedIn ↗</a></p>
+      {linkedin && (
+        <p style="margin-top:var(--space-5)"><a class="lien-action" href={linkedin} rel="noopener">Voir le post sur LinkedIn ↗</a></p>
       )}
     </div>
   </section>

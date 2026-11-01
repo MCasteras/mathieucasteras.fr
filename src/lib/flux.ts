@@ -1,6 +1,6 @@
 /** Les trois flux RSS (posts, fiches, notes) : une seule fonction par flux, testable sans Astro, utilisée par les routes *.xml.ts. */
 import type { RSSFeedItem } from '@astrojs/rss';
-import { extrait, paragraphes } from './format';
+import { extrait, paragraphes, urlHttps } from './format';
 
 const echapper = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
@@ -22,7 +22,7 @@ export function itemPost(p: PostFlux): RSSFeedItem {
     link: `/veille/posts/${p.id}/`,
     pubDate: date(p.publie_le),
     description: extrait(p.texte, 300),
-    content: html + (p.url_linkedin ? `<p><a href="${echapper(p.url_linkedin)}">Voir le post sur LinkedIn</a></p>` : ''),
+    content: html + (urlHttps(p.url_linkedin) ? `<p><a href="${echapper(urlHttps(p.url_linkedin)!)}">Voir le post sur LinkedIn</a></p>` : ''),
   };
 }
 
