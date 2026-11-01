@@ -32,5 +32,3 @@ Ce site montre la partie que je choisis de rendre publique : rien n'y arrive san
   travaux. Le tout dans Docker sur une petite machine virtuelle, derrière un seul serveur web.
 - **Une vitrine en lecture seule.** L'API expose, sans compte, ce que j'ai marqué public : c'est ce que ce site lit à chaque
   reconstruction. Il ne peut rien écrire.
-
-[À COMPLÉTER : ce que l'outil a changé dans ta pratique, en deux ou trois phrases — sans chiffre qui ne vienne pas du bloc ci-dessous.]
