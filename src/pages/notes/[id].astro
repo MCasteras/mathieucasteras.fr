@@ -12,7 +12,7 @@ const { note } = Astro.props;
 const { Content } = await render(note);
 ---
 
-<Base titre={note.data.titre} description={note.data.resume}>
+<Base titre={note.data.titre} description={note.data.resume} image={`/og/note-${note.id}.png`}>
   <p><a href="/notes/">← Notes</a></p>
   <h1>{note.data.titre}</h1>
   <p class="meta"><span>{dateFr(note.data.date.toISOString())}</span></p>

@@ -16,7 +16,7 @@ const d = fiche.data;
 const titre = d.titre || fiche.id;
 ---
 
-<Base titre={titre} description={d.en_une_phrase ?? undefined}>
+<Base titre={titre} description={d.en_une_phrase ?? undefined} image={`/og/fiche-${fiche.id}.png`}>
   <p><a href="/veille/#fiches">← Fiches hebdo</a></p>
   <h1>{titre}</h1>
   <p class="meta">

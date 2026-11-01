@@ -6,7 +6,7 @@ import Base from '../../layouts/Base.astro';
 const outils = (await getCollection('outils', (o) => !o.data.brouillon)).sort((a, b) => a.data.ordre - b.data.ordre);
 ---
 
-<Base titre="Outils" description="Les outils que je construis pour mon travail de Forward Deployed Engineer.">
+<Base titre="Outils" description="Les outils que je construis pour mon travail de Forward Deployed Engineer." image="/og/outils.png">
   <h1>Outils</h1>
   <p class="chapeau">[À COMPLÉTER : pourquoi tu construis tes propres outils, en une ou deux phrases.]</p>
   <ul class="liste">

@@ -6,12 +6,11 @@ import '../styles/charte.css';
 interface Props {
   titre: string;
   description?: string;
-  /** Image Open Graph (chemin absolu sur le site), séance 3. */
   image?: string;
   large?: boolean;
 }
 
-const { titre, description, image, large = false } = Astro.props;
+const { titre, description, image = "/og/defaut.png", large = false } = Astro.props;
 const SITE = 'Mathieu Casteras';
 const titreComplet = titre === SITE ? SITE : `${titre} · ${SITE}`;
 const chemin = Astro.url.pathname;

@@ -15,7 +15,7 @@ const d = post.data;
 const titre = d.titres?.[0] || extrait(d.texte, 80) || 'Post';
 ---
 
-<Base titre={titre} description={extrait(d.texte, 200)}>
+<Base titre={titre} description={extrait(d.texte, 200)} image={`/og/post-${post.id}.png`}>
   <p><a href="/veille/#posts">← Posts</a></p>
   <h1>{titre}</h1>
   <p class="meta">

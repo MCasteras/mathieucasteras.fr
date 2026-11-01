@@ -35,3 +35,20 @@ flux sont dans `src/lib/flux.ts`, sans dépendance à Astro, pour être testées
 ## 2026-11-01 — Les chiffres de l'outil de veille : `/api/vitrine/stats` seulement, sans l'usage LLM
 La page `/outils/veille/` affiche les compteurs et les articles par mois tels que l'API les renvoie. Les appels et coûts
 par modèle, que l'API renvoie aussi, ne sont pas affichés : ce n'est pas un chiffre qui dit quelque chose au visiteur.
+
+## 2026-11-01 — Images Open Graph avec `@resvg/resvg-js`, au build
+Rendu SVG → PNG natif (binaire précompilé), sans navigateur ni Chromium dans l'image : quelques dizaines de millisecondes par
+image. Un post avec illustration donne son SVG centré sur 1200 × 630 ; les autres pages une carte avec le titre. Les polices
+viennent du système de build (DejaVu Sans dans l'image Docker) ; le navigateur n'en charge aucune. Alternative écartée :
+`sharp` (plus lourd, librsvg) ou satori + un navigateur.
+
+## 2026-11-01 — `site-builder` : un serveur Node sans dépendance, releases et lien symbolique
+Le webhook, la file (un build à la fois, un seul en attente) et le saut sur `modifie_le` inchangé tiennent dans
+`deploy/builder/builder.mjs`, testé seul avec un build factice. Chaque build va dans `releases/<horodatage>/` du volume, puis
+`current` bascule par `rename` d'un lien symbolique : un build raté ne touche pas au site en ligne, et on garde deux versions.
+Astro déplace ses fichiers par `rename`, impossible vers un volume (autre système de fichiers) : on construit dans le
+conteneur puis on copie la release d'un bloc.
+
+## 2026-11-01 — `packageManager: pnpm@8.15.4`
+Le lockfile est au format 6 (pnpm 8) ; corepack lit `packageManager` et installe la même version dans l'image Docker, sinon
+`--frozen-lockfile` refuse.

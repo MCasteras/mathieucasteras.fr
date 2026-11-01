@@ -12,7 +12,7 @@ const { outil } = Astro.props;
 const { Content } = await render(outil);
 ---
 
-<Base titre={outil.data.titre} description={outil.data.resume}>
+<Base titre={outil.data.titre} description={outil.data.resume} image={`/og/outil-${outil.id}.png`}>
   <p><a href="/outils/">← Outils</a></p>
   <h1>{outil.data.titre}</h1>
   <p class="chapeau">{outil.data.resume}</p>

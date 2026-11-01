@@ -26,7 +26,8 @@ Construire : `pnpm build` (dans `dist/`). Tests : `pnpm test` (le test de build 
 | `VITRINE_API` | Base de l'API de la veille (`https://veille.<domaine>`), sans barre finale. | vide → jeu d'exemple |
 | `VITRINE_OBLIGATOIRE` | `1` : interdit le repli sur le jeu d'exemple, le build échoue si l'API ne répond pas. À poser en production. | vide |
 | `SITE_URL` | URL publique du site, pour les URL absolues (canonical, Open Graph, flux). | `https://mathieucasteras.fr` |
-| `SITE_WEBHOOK_SECRET` | Jeton attendu sur `POST /rebuild` (séance 3). | — |
+| `SITE_WEBHOOK_SECRET` | Jeton attendu sur `POST /rebuild` ; le même va dans `VITRINE_WEBHOOK_SECRET` côté veille. Obligatoire : sans lui `site-builder` refuse de démarrer. | — |
+| `HEURE_NUIT` | Heure (Europe/Paris) de la reconstruction nocturne de secours. | `03:30` |
 
 Les valeurs de production vont dans `deploy/.env` (jamais commité) ; `deploy/.env.example` les liste.
 
@@ -52,7 +53,49 @@ Flux RSS : `/veille/posts.xml`, `/veille/fiches.xml`, `/notes.xml`. Plan du site
 
 Le site lit, au build, les six routes `GET <VITRINE_API>/api/vitrine{,/posts,/fiches,/focus,/sources,/stats}` décrites dans
 `veille-fde/docs/14-site-vitrine.md § 2` et n'affiche rien d'autre. Il vérifie `version == 1`. Il n'écrit jamais côté veille.
-La veille appelle `POST https://<domaine>/rebuild` quand la vitrine change (séance 3).
+
+**Webhook.** Quand la vitrine change, le worker de la veille fait `POST https://mathieucasteras.fr/rebuild` avec
+`Authorization: Bearer <secret>` et un corps vide. Caddy le passe à `site-builder:8080`, qui répond **202** tout de suite et
+reconstruit en tâche de fond. Sans le bon jeton : 401. Un appel pendant un build en programme un seul autre à la fin ; un
+appel alors que `modifie_le` de `/api/vitrine` n'a pas changé depuis le dernier build réussi ne reconstruit pas
+(`?force=1` pour l'imposer). Côté veille, dans `deploy/.env` : `VITRINE_WEBHOOK=https://mathieucasteras.fr/rebuild` et
+`VITRINE_WEBHOOK_SECRET=<le même secret>`.
+
+## Construction et mise en ligne : `site-builder`
+
+Le conteneur `site-builder` (`deploy/Dockerfile`, `deploy/builder/serveur.mjs`) construit le site et le met en ligne :
+
+- **Quand** : au démarrage du conteneur (toujours), sur le webhook, et chaque nuit à `HEURE_NUIT` (filet de sécurité).
+- **Où** : chaque build va dans `releases/<horodatage>/` du volume `site_dist`, puis le lien symbolique `current` bascule
+  d'un coup. Caddy sert `current`. **Un build raté ne change rien à ce qui est en ligne** ; on garde les deux dernières versions.
+- **Prod** : `VITRINE_OBLIGATOIRE=1`, donc si l'API de la veille ne répond pas, le build échoue et l'ancien site reste.
+- **Journal** : `/data/journal.log` (volume `site_data`) et `docker compose logs site-builder` ; `GET /sante` (sur le réseau
+  `web` seulement, pas exposé par Caddy) donne le dernier build et les vingt derniers.
+
+Images Open Graph : générées au build dans `/og/*.png` (1200 × 630) à partir du SVG de chaque post, ou d'une carte avec le
+titre de la page ; rendu par resvg avec DejaVu Sans installée dans l'image. Aucune police n'est chargée par le navigateur.
+
+### Déployer sur la VM
+
+Après `serveur/` (voir plus haut) et `veille-fde` :
+
+```bash
+cd ~/mathieucasteras.fr/deploy && cp .env.example .env && nano .env   # VITRINE_API, SITE_URL, SITE_WEBHOOK_SECRET (openssl rand -hex 32)
+docker compose up -d --build
+docker compose logs -f site-builder                                   # « démarrage : site reconstruit en … s »
+curl -I https://mathieucasteras.fr                                    # 200
+```
+
+Mise à jour (nouveau code, nouvelle note) : `deploy/update.sh` (git pull, image reconstruite, site reconstruit au
+démarrage, Caddy rechargé si un fragment a changé). Essai sans Caddy : `docker compose -f docker-compose.yml -f docker-compose.seul.yml up -d --build`
+publie `127.0.0.1:8087`.
+
+### Ce que Mat fait à la main
+
+1. Générer un secret (`openssl rand -hex 32`) et le poser des deux côtés : `SITE_WEBHOOK_SECRET` ici, `VITRINE_WEBHOOK_SECRET`
+   + `VITRINE_WEBHOOK=https://mathieucasteras.fr/rebuild` dans `veille-fde/deploy/.env`.
+2. Marquer les premiers documents « Vitrine » dans l'outil de veille, puis vérifier dans Réglages › Travaux que le travail
+   `vitrine` a répondu 202, et dans `journal.log` que le site s'est reconstruit.
 
 ## Le serveur partagé : `serveur/`
 
@@ -108,5 +151,5 @@ docker run --rm -e DOMAINE=exemple.fr -e ACME_EMAIL=a@exemple.fr -v "$PWD/serveu
 
 1. Squelette Astro, charte, accueil, Veille (posts, fiches, focus) sur la route publique avec repli sur le jeu d'exemple. **Fait.**
 2. Outils, Sources, Notes, flux RSS (posts, fiches, notes), sitemap, page 404. **Fait.**
-3. Images Open Graph depuis les SVG, `site-builder` (build, `POST /rebuild`, reconstruction nocturne), fragment Caddy, README complet.
+3. Images Open Graph depuis les SVG, `site-builder` (build, `POST /rebuild`, reconstruction nocturne, releases), fragment Caddy, README complet. **Fait.**
 4. Finitions, export réel en jeu d'exemple, première mise en ligne.

@@ -28,3 +28,4 @@ export*/
 *.reel.json
 deploy/.env
 serveur/.env
+.build-tmp

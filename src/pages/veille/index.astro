@@ -10,7 +10,7 @@ const fiches = (await getCollection('fiches')).sort((a, b) => (b.data.valide_le 
 const focus = (await getCollection('focus')).sort((a, b) => (b.data.pret_le ?? '').localeCompare(a.data.pret_le ?? ''));
 ---
 
-<Base titre="Veille" description="Posts, fiches hebdomadaires et dossiers focus sur l'IA générative en entreprise.">
+<Base titre="Veille" description="Posts, fiches hebdomadaires et dossiers focus sur l'IA générative en entreprise." image="/og/veille.png">
   <h1>Veille</h1>
   <p class="chapeau">
     Ce que je publie de ma veille sur l'IA générative en entreprise : des posts, une fiche par semaine, des dossiers sur

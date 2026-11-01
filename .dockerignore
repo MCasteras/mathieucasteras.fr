@@ -1,0 +1,10 @@
+node_modules
+dist
+.astro
+.git
+.claude
+deploy/.env
+serveur/.env
+*.db
+export*/
+.build-tmp

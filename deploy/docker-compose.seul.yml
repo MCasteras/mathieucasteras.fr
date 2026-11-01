@@ -1,0 +1,16 @@
+# Essai sans le Caddy de serveur/ : publie le port 8087 sur la machine (POST /rebuild, GET /sante) et un volume local pour le site.
+# docker compose -f docker-compose.yml -f docker-compose.seul.yml up -d --build
+# Le site construit est dans le volume `site_dist_seul` (docker run --rm -v site_dist_seul:/s alpine ls /s/current).
+services:
+  site-builder:
+    ports: ["127.0.0.1:8087:8080"]
+    networks: !override [seul]
+    volumes: !override
+      - site_dist_seul:/srv/site
+      - site_data:/data
+
+networks:
+  seul: {}
+
+volumes:
+  site_dist_seul: {}

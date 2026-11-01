@@ -19,7 +19,7 @@ const titre = dossier.titre || cadre.titre || focus.id;
 const etapes = dossier.fonctionnement?.etapes ?? [];
 ---
 
-<Base titre={titre} description={dossier.verdict ?? undefined} large>
+<Base titre={titre} description={dossier.verdict ?? undefined} image={`/og/focus-${focus.id}.png`} large>
   <p><a href="/veille/#focus">← Dossiers focus</a></p>
   <h1>{titre}</h1>
   <p class="meta">

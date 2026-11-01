@@ -1,0 +1,24 @@
+# `site-builder` : construit le site dans le volume externe `site_dist` (servi par le Caddy de serveur/) et écoute
+# POST /rebuild sur le réseau externe `web`, joint par Caddy sous https://<domaine>/rebuild. Aucun port publié.
+# Pré-requis : serveur/ en place (réseau web, volume site_dist), deploy/.env rempli (voir .env.example).
+# Lancer : docker compose up -d --build. Mise à jour : ./update.sh.
+services:
+  site-builder:
+    build: { context: .., dockerfile: deploy/Dockerfile }
+    container_name: site-builder
+    env_file: .env
+    volumes:
+      - site_dist:/srv/site     # releases/<horodatage>/ et le lien current, lus par Caddy
+      - site_data:/data         # journal.log, builds.json
+    restart: unless-stopped
+    expose: ["8080"]
+    networks: [web]
+
+networks:
+  web:
+    external: true              # créé par serveur/ : docker network create web
+
+volumes:
+  site_dist:
+    external: true              # créé par serveur/ : docker volume create site_dist
+  site_data: {}
