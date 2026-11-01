@@ -1,0 +1,10 @@
+---
+/** Page d'erreur servie par Caddy (handle_errors 404 dans deploy/caddy/site.caddy). */
+import Base from '../layouts/Base.astro';
+---
+
+<Base titre="Page introuvable">
+  <h1>Page introuvable</h1>
+  <p>Cette adresse ne mène nulle part : la page a peut-être été retirée de la vitrine, ou le lien est erroné.</p>
+  <p><a href="/">Retour à l'accueil</a> · <a href="/veille/">La veille</a></p>
+</Base>

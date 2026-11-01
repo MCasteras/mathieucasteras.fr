@@ -1,0 +1,40 @@
+---
+/** Les chiffres de l'outil de veille, uniquement depuis /api/vitrine/stats (agrégats). Rien d'autre, rien de calculé ailleurs. */
+import { getEntry } from 'astro:content';
+
+interface Mois { mois: string; collectes?: number | null; retenus?: number | null; lus?: number | null }
+const stats = (await getEntry('vitrine', 'stats'))?.data as
+  | { items_par_mois?: Mois[]; posts_publies?: number; fiches?: number; focus?: number }
+  | undefined;
+const mois = (stats?.items_par_mois ?? []).filter((m) => typeof m?.mois === 'string').slice(-12).reverse();
+const nomMois = new Intl.DateTimeFormat('fr-FR', { month: 'long', year: 'numeric', timeZone: 'UTC' });
+const libelle = (m: string) => {
+  const d = new Date(`${m}-01T00:00:00Z`);
+  return Number.isNaN(d.getTime()) ? m : nomMois.format(d);
+};
+const n = (v: number | null | undefined) => (typeof v === 'number' ? v.toLocaleString('fr-FR') : '');
+---
+
+{stats && (
+  <section>
+    <h2>En chiffres</h2>
+    <p class="compteurs">
+      <span><strong>{n(stats.posts_publies)}</strong> posts publiés</span>
+      <span><strong>{n(stats.fiches)}</strong> fiches hebdo</span>
+      <span><strong>{n(stats.focus)}</strong> dossiers focus</span>
+    </p>
+    {mois.length > 0 && (
+      <table>
+        <caption class="meta">Articles par mois, douze derniers mois</caption>
+        <thead>
+          <tr><th>Mois</th><th>Collectés</th><th>Retenus</th><th>Lus</th></tr>
+        </thead>
+        <tbody>
+          {mois.map((m) => (
+            <tr><td>{libelle(m.mois)}</td><td>{n(m.collectes)}</td><td>{n(m.retenus)}</td><td>{n(m.lus)}</td></tr>
+          ))}
+        </tbody>
+      </table>
+    )}
+  </section>
+)}

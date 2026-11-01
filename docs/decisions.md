@@ -26,3 +26,12 @@ Aucune ressource tierce ; `prefers-color-scheme` par défaut, surcharge `data-th
 ## 2026-11-01 — URL avec barre finale, un dossier par page
 `trailingSlash: 'always'` et `build.format = 'directory'` : `file_server` de Caddy sert `/veille/` depuis `veille/index.html`
 sans règle de réécriture.
+
+## 2026-11-01 — `@astrojs/rss` et `@astrojs/sitemap`
+Les intégrations officielles : le flux est écrit par une route `*.xml.ts` à partir des collections (RSS 2.0, `content:encoded`
+pour le texte complet des posts), le sitemap par l'intégration à partir de `site`. Les transformations document → entrée de
+flux sont dans `src/lib/flux.ts`, sans dépendance à Astro, pour être testées seules.
+
+## 2026-11-01 — Les chiffres de l'outil de veille : `/api/vitrine/stats` seulement, sans l'usage LLM
+La page `/outils/veille/` affiche les compteurs et les articles par mois tels que l'API les renvoie. Les appels et coûts
+par modèle, que l'API renvoie aussi, ne sont pas affichés : ce n'est pas un chiffre qui dit quelque chose au visiteur.

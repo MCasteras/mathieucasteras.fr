@@ -350,3 +350,46 @@ td {
     overflow-x: auto;
   }
 }
+
+/* Markdown des notes et des outils */
+.prose > :first-child {
+  margin-top: 0;
+}
+
+.prose img {
+  max-width: 100%;
+  height: auto;
+}
+
+.prose blockquote {
+  margin: 1em 0;
+  padding: 0.2em 1em;
+  border-left: 3px solid var(--trait);
+  color: var(--encre-2);
+}
+
+.prose pre {
+  background: var(--fond-2);
+  border: 1px solid var(--trait);
+  border-radius: 6px;
+  padding: 0.8rem 1rem;
+  overflow-x: auto;
+  font-size: 0.88rem;
+}
+
+.prose pre code {
+  background: none;
+  padding: 0;
+}
+
+.prose hr {
+  border: 0;
+  border-top: 1px solid var(--trait);
+  margin: 2em 0;
+}
+
+caption {
+  caption-side: top;
+  text-align: left;
+  padding: 0 0 0.4rem;
+}

@@ -13,6 +13,12 @@ handle {
 	file_server
 }
 
+# Page 404 du site (dist/404.html, générée par Astro)
+handle_errors 404 {
+	rewrite * /404.html
+	file_server
+}
+
 header {
 	Strict-Transport-Security "max-age=31536000"
 	X-Content-Type-Options nosniff

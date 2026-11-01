@@ -1,0 +1,22 @@
+---
+/** Une note : le Markdown rendu. */
+import { getCollection, render } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import { dateFr } from '../../lib/format';
+
+export async function getStaticPaths() {
+  return (await getCollection('notes', (n) => !n.data.brouillon)).map((n) => ({ params: { id: n.id }, props: { note: n } }));
+}
+
+const { note } = Astro.props;
+const { Content } = await render(note);
+---
+
+<Base titre={note.data.titre} description={note.data.resume}>
+  <p><a href="/notes/">← Notes</a></p>
+  <h1>{note.data.titre}</h1>
+  <p class="meta"><span>{dateFr(note.data.date.toISOString())}</span></p>
+  <div class="prose">
+    <Content />
+  </div>
+</Base>

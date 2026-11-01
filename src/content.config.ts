@@ -134,6 +134,18 @@ export const collections = {
       brouillon: z.boolean().default(false),
     }),
   }),
+  /** Une page par outil ; `veille` reçoit en plus les chiffres de /api/vitrine/stats. */
+  outils: defineCollection({
+    loader: glob({ pattern: '**/*.md', base: './src/content/outils' }),
+    schema: z.object({
+      titre: z.string(),
+      resume: z.string(),
+      ordre: z.number().default(99),
+      /** Lien vers l'outil lui-même (privé ou public). */
+      lien: z.url().optional(),
+      brouillon: z.boolean().default(false),
+    }),
+  }),
   posts: defineCollection({ loader: chargeurVitrine('posts'), schema: Post }),
   fiches: defineCollection({ loader: chargeurVitrine('fiches'), schema: Fiche }),
   focus: defineCollection({ loader: chargeurVitrine('focus'), schema: Focus }),

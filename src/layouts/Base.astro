@@ -18,10 +18,12 @@ const chemin = Astro.url.pathname;
 const etat = await getEntry('vitrine', 'index');
 const exemple = etat?.data.origine === 'fixtures';
 
-// Outils, Sources et Notes s'ajoutent ici quand leurs pages existent (séance 2).
 const nav = [
   ['/', 'Accueil'],
   ['/veille/', 'Veille'],
+  ['/outils/', 'Outils'],
+  ['/sources/', 'Sources'],
+  ['/notes/', 'Notes'],
 ] as const;
 
 function courant(href: string): 'page' | undefined {
@@ -45,6 +47,10 @@ function courant(href: string): 'page' | undefined {
     <meta property="og:url" content={new URL(chemin, Astro.site)} />
     {image && <meta property="og:image" content={new URL(image, Astro.site)} />}
     <meta name="twitter:card" content={image ? 'summary_large_image' : 'summary'} />
+    <link rel="alternate" type="application/rss+xml" title="Posts" href="/veille/posts.xml" />
+    <link rel="alternate" type="application/rss+xml" title="Fiches hebdo" href="/veille/fiches.xml" />
+    <link rel="alternate" type="application/rss+xml" title="Notes" href="/notes.xml" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
     <script is:inline>
       // Avant le premier rendu : applique le thème choisi par le visiteur s'il en a mémorisé un.
       try {
@@ -70,6 +76,7 @@ function courant(href: string): 'page' | undefined {
     <footer class="pied">
       <div class="conteneur">
         <p>Mathieu Casteras, Forward Deployed Engineer. Les contenus de veille viennent de mon outil privé, publiés ici quand je les y marque. Aucun traqueur, aucune ressource tierce.</p>
+        <p>Flux : <a href="/veille/posts.xml">posts</a> · <a href="/veille/fiches.xml">fiches hebdo</a> · <a href="/notes.xml">notes</a></p>
       </div>
     </footer>
     <script is:inline>

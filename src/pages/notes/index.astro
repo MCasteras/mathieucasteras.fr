@@ -1,0 +1,24 @@
+---
+/** Notes : articles libres, du plus récent au plus ancien, brouillons exclus. */
+import { getCollection } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import { dateFr } from '../../lib/format';
+
+const notes = (await getCollection('notes', (n) => !n.data.brouillon)).sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+---
+
+<Base titre="Notes" description="Notes de construction et retours d'expérience.">
+  <h1>Notes</h1>
+  <p class="chapeau">Notes de construction, retours d'expérience, choses apprises en chemin.</p>
+  {notes.length === 0 ? <p>Aucune note publiée pour le moment.</p> : (
+    <ul class="liste">
+      {notes.map((n) => (
+        <li>
+          <h3><a href={`/notes/${n.id}/`}>{n.data.titre}</a></h3>
+          <p class="meta"><span>{dateFr(n.data.date.toISOString())}</span></p>
+          {n.data.resume && <p>{n.data.resume}</p>}
+        </li>
+      ))}
+    </ul>
+  )}
+</Base>

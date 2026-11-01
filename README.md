@@ -43,7 +43,10 @@ brouillon: false
 ---
 ```
 
-`brouillon: true` garde la note hors des listes et du flux.
+`brouillon: true` garde la note hors des listes et du flux. Même principe pour un outil dans `src/content/outils/`
+(`titre`, `resume`, `ordre`, `lien` facultatif) ; la page `/outils/veille/` ajoute les chiffres de `/api/vitrine/stats`.
+
+Flux RSS : `/veille/posts.xml`, `/veille/fiches.xml`, `/notes.xml`. Plan du site : `/sitemap-index.xml`.
 
 ## Contrat avec la veille
 
@@ -104,6 +107,6 @@ docker run --rm -e DOMAINE=exemple.fr -e ACME_EMAIL=a@exemple.fr -v "$PWD/serveu
 ## Séances
 
 1. Squelette Astro, charte, accueil, Veille (posts, fiches, focus) sur la route publique avec repli sur le jeu d'exemple. **Fait.**
-2. Outils, Sources, Notes, flux RSS (posts, fiches, notes), sitemap.
+2. Outils, Sources, Notes, flux RSS (posts, fiches, notes), sitemap, page 404. **Fait.**
 3. Images Open Graph depuis les SVG, `site-builder` (build, `POST /rebuild`, reconstruction nocturne), fragment Caddy, README complet.
 4. Finitions, export réel en jeu d'exemple, première mise en ligne.

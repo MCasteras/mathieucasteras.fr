@@ -1,0 +1,20 @@
+---
+/** Outils : la liste, la veille en premier. */
+import { getCollection } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+
+const outils = (await getCollection('outils', (o) => !o.data.brouillon)).sort((a, b) => a.data.ordre - b.data.ordre);
+---
+
+<Base titre="Outils" description="Les outils que je construis pour mon travail de Forward Deployed Engineer.">
+  <h1>Outils</h1>
+  <p class="chapeau">[À COMPLÉTER : pourquoi tu construis tes propres outils, en une ou deux phrases.]</p>
+  <ul class="liste">
+    {outils.map((o) => (
+      <li>
+        <h3><a href={`/outils/${o.id}/`}>{o.data.titre}</a></h3>
+        <p>{o.data.resume}</p>
+      </li>
+    ))}
+  </ul>
+</Base>
