@@ -1,0 +1,33 @@
+# Le Caddy unique de la VM : il porte les domaines, les certificats Let's Encrypt et les en-têtes, et joint chaque
+# application par le réseau Docker externe `web`. Les applications ne publient aucun port ; chacune fournit un fragment
+# Caddy (ici deploy/caddy/site.caddy pour le site, deploy/caddy/veille.caddy dans le dépôt veille-fde), monté en lecture
+# seule et importé par le Caddyfile.
+# Pré-requis (une fois) : docker network create web ; docker volume create site_dist ; cp .env.example .env
+services:
+  caddy:
+    image: caddy:2
+    container_name: caddy
+    restart: unless-stopped
+    env_file: .env
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"          # HTTP/3
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - ../deploy/caddy/site.caddy:/etc/caddy/sites/site.caddy:ro
+      - ${CHEMIN_VEILLE:-/home/mat/veille-fde}/deploy/caddy/veille.caddy:/etc/caddy/sites/veille.caddy:ro
+      - site_dist:/srv/site:ro  # le site statique, construit par `site-builder` (deploy/docker-compose.yml)
+      - caddy_data:/data        # certificats : à sauvegarder, sinon Let's Encrypt est resollicité
+      - caddy_config:/config
+    networks: [web]
+
+networks:
+  web:
+    external: true             # docker network create web
+
+volumes:
+  site_dist:
+    external: true             # docker volume create site_dist (rempli par site-builder)
+  caddy_data: {}
+  caddy_config: {}

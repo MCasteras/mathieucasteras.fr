@@ -2,7 +2,7 @@
 
 Site personnel de Mat, Forward Deployed Engineer : vitrine publique, en français, **statique** (Astro + TypeScript, contenu Markdown
 via les content collections). Pas de base, pas de connexion, pas de formulaire : Caddy sert des fichiers. Hébergé sur la VM OVH
-à la racine du domaine, derrière le Caddy unique du dépôt `serveur` (réseau Docker externe `web`).
+à la racine du domaine, derrière le Caddy unique de la machine, qui vit dans `serveur/` de ce dépôt (réseau Docker externe `web`).
 
 ## À lire avant de coder
 - `README.md` : lancer, construire, ajouter une note, variables, contrat avec `serveur` et avec la veille.
@@ -20,7 +20,7 @@ via les content collections). Pas de base, pas de connexion, pas de formulaire :
 - Les SVG des posts sont déjà nettoyés par l'API : on les insère tels quels, sans les retoucher.
 - Une source sans `url` s'affiche sans lien ; les `refs` renvoient aux `n` des `sources` de la même page.
 - Pas de traqueur, pas de police ni de script chargé depuis un tiers. Lisible au téléphone, thème clair et sombre.
-- Les secrets (`SITE_WEBHOOK_SECRET`…) sont dans `deploy/.env`, jamais dans le code ni la doc.
+- Les secrets (`SITE_WEBHOOK_SECRET`…) sont dans `deploy/.env` et `serveur/.env`, jamais dans le code ni la doc.
 - Pas de moissonnage de LinkedIn : le lien `url_linkedin` suffit.
 
 ## Organisation
@@ -30,6 +30,9 @@ via les content collections). Pas de base, pas de connexion, pas de formulaire :
 - `src/styles/charte.css` : la charte (polices système, deux thèmes). `src/layouts/Base.astro` : le gabarit.
 - `tests/` : vitest ; `tests/build.test.ts` construit le site sur le jeu d'exemple.
 - `deploy/` : docker-compose (`site-builder`), fragment Caddy `caddy/site.caddy`, `.env.example`.
+- `serveur/` : le Caddy partagé de la VM (compose, `Caddyfile` à un bloc par hôte, `reload.sh`, `.env.example`). Le Caddyfile ne
+  contient que les hôtes et l'adresse ACME ; les directives d'un site vont dans son fragment. Après tout changement : `reload.sh`,
+  jamais `docker compose down`. Un nouveau service = un conteneur nommé joint à `web`, un fragment, un bloc d'hôte, pas de port publié.
 
 ## Façon de travailler
 - Une séance = une étape du plan ; terminer par `pnpm test`, puis un commit en français qui dit quoi et pourquoi.

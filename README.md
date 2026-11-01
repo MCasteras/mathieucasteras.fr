@@ -51,11 +51,55 @@ Le site lit, au build, les six routes `GET <VITRINE_API>/api/vitrine{,/posts,/fi
 `veille-fde/docs/14-site-vitrine.md § 2` et n'affiche rien d'autre. Il vérifie `version == 1`. Il n'écrit jamais côté veille.
 La veille appelle `POST https://<domaine>/rebuild` quand la vitrine change (séance 3).
 
-## Contrat avec `serveur`
+## Le serveur partagé : `serveur/`
 
-`serveur` crée le réseau Docker externe `web` et le volume externe `site_dist`, monte `deploy/caddy/site.caddy` et l'importe
-dans le bloc du domaine racine ; il porte aussi la redirection `www` et le TLS. Le fragment sert `/srv/site` (le volume) et
-renvoie `POST /rebuild` vers le conteneur `site-builder:8080` (séance 3), qui construit le site dans `site_dist`.
+Le dossier `serveur/` porte le Caddy unique de la VM : il obtient les certificats Let's Encrypt, sert le site à la racine du
+domaine, redirige `www`, et joint l'outil de veille sous `veille.<domaine>`. Il n'y a qu'un Caddy pour toute la machine.
+
+| Élément | Où |
+| --- | --- |
+| Réseau Docker `web` (externe) | créé une fois à la main : `docker network create web`. Tous les composes le déclarent `external: true`. |
+| Volume `site_dist` (externe) | créé une fois : `docker volume create site_dist`. `site-builder` (séance 3) y construit le site ; Caddy le sert depuis `/srv/site`. |
+| `serveur/Caddyfile` | un bloc par hôte (`{$DOMAINE}`, `www`, `veille`), l'adresse ACME, rien d'autre. |
+| `deploy/caddy/site.caddy` | les directives du site : `root`, `file_server`, compression, en-têtes, `/rebuild` → `site-builder:8080`. |
+| `veille-fde/deploy/caddy/veille.caddy` | les directives de la veille (`reverse_proxy veille-fde-app:8000`), lues dans le clone voisin (`CHEMIN_VEILLE`). |
+| Certificats | volume `caddy_data`, à inclure dans les sauvegardes. |
+
+Chaque application : un conteneur nommé joint à `web`, aucun port publié ; Caddy pose `X-Forwarded-For` et `X-Forwarded-Proto`.
+
+### Mise en place sur la VM (une fois)
+
+Machine préparée selon `veille-fde/docs/12 § 6.2` (Debian 12, Docker, utilisateur `mat`). DNS : `A`/`AAAA` de la racine, de
+`www` et de `veille` vers l'IP du VPS, propagés (`dig +short mathieucasteras.fr`). Les deux dépôts doivent être clonés
+avant le premier démarrage : Caddy monte `veille.caddy` depuis le clone voisin, et un fichier absent deviendrait un dossier vide.
+
+```bash
+git clone git@github.com:MCasteras/mathieucasteras.fr.git ~/mathieucasteras.fr
+git clone git@github.com:MCasteras/veille-fde.git ~/veille-fde
+cd ~/mathieucasteras.fr/serveur && cp .env.example .env && nano .env     # DOMAINE, ACME_EMAIL
+docker network create web
+docker volume create site_dist
+docker compose up -d
+docker compose logs -f caddy                                             # certificats : quelques secondes par hôte
+```
+
+Tant que la veille et `site-builder` ne tournent pas, Caddy répond 502 sur leurs chemins : c'est normal. Ensuite, dans
+l'ordre : `veille-fde` (`deploy/README.md`), puis le site (`deploy/`, séance 3).
+
+### Au quotidien
+
+- Après un `git pull` ici ou dans `veille-fde` : `serveur/reload.sh` (valide puis recharge sans coupure). Jamais `docker compose down` pour recharger.
+- Mise à jour de Caddy : `cd serveur && docker compose pull && docker compose up -d`.
+- Ajouter un service sur la VM : un conteneur nommé joint à `web` dans son dépôt, un fragment Caddy sans hôte ni TLS, un
+  montage dans `serveur/docker-compose.yml`, un bloc `nom.{$DOMAINE} { import … }` dans le Caddyfile, un enregistrement DNS,
+  puis `docker compose up -d && ./reload.sh`.
+- Vérifier : `curl -I https://mathieucasteras.fr`, `curl -I https://www.mathieucasteras.fr` (301), `curl https://veille.mathieucasteras.fr/api/vitrine`.
+
+### Valider sans la VM
+
+```bash
+docker run --rm -e DOMAINE=exemple.fr -e ACME_EMAIL=a@exemple.fr -v "$PWD/serveur/Caddyfile:/etc/caddy/Caddyfile:ro" -v "$PWD/deploy/caddy/site.caddy:/etc/caddy/sites/site.caddy:ro" -v "$PWD/../veille-fde/deploy/caddy/veille.caddy:/etc/caddy/sites/veille.caddy:ro" caddy:2 caddy validate --config /etc/caddy/Caddyfile
+```
 
 ## Séances
 

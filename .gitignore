@@ -27,3 +27,4 @@ pnpm-debug.log*
 export*/
 *.reel.json
 deploy/.env
+serveur/.env
