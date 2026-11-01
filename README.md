@@ -53,8 +53,9 @@ La veille appelle `POST https://<domaine>/rebuild` quand la vitrine change (séa
 
 ## Contrat avec `serveur`
 
-À venir (séance 3) : conteneur `site-builder` sur le réseau Docker externe `web`, volume `site_dist`, fragment
-`deploy/caddy/site.caddy` à importer dans le bloc du domaine racine.
+`serveur` crée le réseau Docker externe `web` et le volume externe `site_dist`, monte `deploy/caddy/site.caddy` et l'importe
+dans le bloc du domaine racine ; il porte aussi la redirection `www` et le TLS. Le fragment sert `/srv/site` (le volume) et
+renvoie `POST /rebuild` vers le conteneur `site-builder:8080` (séance 3), qui construit le site dans `site_dist`.
 
 ## Séances
 
