@@ -100,6 +100,10 @@ publie `127.0.0.1:8087`.
 2. Marquer les premiers documents « Vitrine » dans l'outil de veille, puis vérifier dans Réglages › Travaux que le travail
    `vitrine` a répondu 202, et dans `journal.log` que le site s'est reconstruit.
 
+## Remonter toute la VM
+
+Le guide complet, avec toutes les commandes dans l'ordre et les pannes déjà rencontrées : [docs/deploiement-vm.md](docs/deploiement-vm.md).
+
 ## Le serveur partagé : `serveur/`
 
 Le dossier `serveur/` porte le Caddy unique de la VM : il obtient les certificats Let's Encrypt, sert le site à la racine du
