@@ -1,25 +1,28 @@
 ---
-/** Sources : ce que la veille lit, une section à repère par type d'accès, depuis /api/vitrine/sources. */
+/** Sources : ce que la veille suit, une section à repère par catégorie, depuis /api/vitrine/sources. */
 import { getCollection } from 'astro:content';
 import Base from '../../layouts/Base.astro';
 import Themes from '../../components/Themes.astro';
 
+/** Deux catégories parlent de l'outil plutôt que de leur contenu : elles se lisent mieux sous un seul titre. */
+const LIBELLES: Record<string, string> = { 'filets de sécurité': 'Autres sources', enrichissement: 'Autres sources', autre: 'Autres sources' };
 const sources = await getCollection('sources');
 const groupes = new Map<string, typeof sources>();
 for (const s of sources) {
-  const type = (s.data.type ?? 'autre').trim() || 'autre';
+  const brut = (s.data.type ?? 'autre').trim() || 'autre';
+  const type = LIBELLES[brut.toLowerCase()] ?? brut;
   groupes.set(type, [...(groupes.get(type) ?? []), s]);
 }
 const ordre = [...groupes.keys()].sort((a, b) => (groupes.get(b)!.length - groupes.get(a)!.length) || a.localeCompare(b, 'fr'));
 const majuscule = (t: string) => t.charAt(0).toUpperCase() + t.slice(1);
 ---
 
-<Base titre="Sources" description="Les sources que ma veille lit : blogs d'éditeurs et de praticiens, arXiv, dépôts GitHub." image="/og/sources.png">
+<Base titre="Sources" description="Les sources que ma veille suit : blogs d'éditeurs et de praticiens, arXiv, dépôts GitHub." image="/og/sources.png">
   <section class="hero page">
     <div class="repere"><span class="mono-label">Sources<br /><span class="compte">{sources.length}</span></span></div>
     <div class="contenu">
-      <h1 class="title-1">Ce que ma veille lit</h1>
-      <p class="lead">Les sources telles qu'elles sont configurées aujourd'hui : {sources.length} sources. Chaque entrée renvoie à l'original.</p>
+      <h1 class="title-1">Ce que ma veille suit</h1>
+      <p class="lead">Les {sources.length} sources que ma veille suit aujourd'hui, de la recherche aux retours de terrain.</p>
     </div>
   </section>
 

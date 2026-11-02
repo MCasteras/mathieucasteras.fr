@@ -1,5 +1,5 @@
 [
-  { "nom": "[EXEMPLE] Blog fictif", "url": "https://example.org/blog", "type": "RSS", "themes": ["T6", "T11"] },
-  { "nom": "[EXEMPLE] Page de liste fictive", "url": "https://example.org/liste", "type": "page", "themes": ["T1"] },
-  { "nom": "[EXEMPLE] Source sans adresse", "url": null, "type": "page", "themes": [] }
+  { "nom": "[EXEMPLE] Blog fictif", "url": "https://example.org/blog", "type": "Praticiens", "themes": ["T6", "T11"] },
+  { "nom": "[EXEMPLE] Page de liste fictive", "url": "https://example.org/liste", "type": "Éditeurs", "themes": ["T1"] },
+  { "nom": "[EXEMPLE] Source sans adresse", "url": null, "type": "Filets de sécurité", "themes": [] }
 ]

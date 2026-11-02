@@ -1,6 +1,6 @@
 ---
 /** Gabarit de toutes les pages, selon le système de design : nav numérotée en mono, bouton de contact, bascule de thème, pied mono. */
-import { getEntry } from 'astro:content';
+import { getCollection, getEntry } from 'astro:content';
 import '@fontsource/inter/latin-400.css';
 import '@fontsource/inter/latin-500.css';
 import '@fontsource/inter/latin-600.css';
@@ -22,13 +22,17 @@ const chemin = Astro.url.pathname;
 const etat = await getEntry('vitrine', 'index');
 const exemple = etat?.data.origine === 'fixtures';
 
-const nav = [
-  ['/#methode', '01 Méthode', '/'],
-  ['/veille/', '02 Veille', '/veille/'],
-  ['/outils/', '03 Outils', '/outils/'],
-  ['/sources/', '04 Sources', '/sources/'],
-  ['/notes/', '05 Notes', '/notes/'],
-] as const;
+const aDesNotes = (await getCollection('notes', (n) => !n.data.brouillon)).length > 0;
+
+// Notes n'apparaît qu'une fois la première note publiée ; la numérotation suit.
+const entrees: Array<[string, string, string]> = [
+  ['/#methode', 'Méthode', '/'],
+  ['/veille/', 'Veille', '/veille/'],
+  ['/outils/', 'Outils', '/outils/'],
+  ['/sources/', 'Sources', '/sources/'],
+  ...(aDesNotes ? ([['/notes/', 'Notes', '/notes/']] as Array<[string, string, string]>) : []),
+];
+const nav = entrees.map(([href, nom, prefixe], i) => [href, `${String(i + 1).padStart(2, '0')} ${nom}`, prefixe] as const);
 
 function courant(prefixe: string): 'page' | undefined {
   if (prefixe === '/') return chemin === '/' ? 'page' : undefined;
@@ -53,7 +57,7 @@ function courant(prefixe: string): 'page' | undefined {
     <meta name="twitter:card" content="summary_large_image" />
     <link rel="alternate" type="application/rss+xml" title="Posts" href="/veille/posts.xml" />
     <link rel="alternate" type="application/rss+xml" title="Fiches hebdo" href="/veille/fiches.xml" />
-    <link rel="alternate" type="application/rss+xml" title="Notes" href="/notes.xml" />
+    {aDesNotes && <link rel="alternate" type="application/rss+xml" title="Notes" href="/notes.xml" />}
     <link rel="sitemap" href="/sitemap-index.xml" />
     <!-- Thème : script externe, bloquant, pour appliquer le choix mémorisé avant le premier rendu (CSP : script-src 'self'). -->
     <script is:inline src="/theme.js"></script>
@@ -76,7 +80,7 @@ function courant(prefixe: string): 'page' | undefined {
     <footer class="pied">
       <div class="conteneur">
         <span>mathieucasteras.fr — forward deployed engineer</span>
-        <span><a href="/veille/posts.xml">rss posts</a> · <a href="/veille/fiches.xml">fiches</a> · <a href="/notes.xml">notes</a> · aucun traqueur</span>
+        <span><a href="https://www.linkedin.com/in/mathieu-casteras/" rel="noopener">linkedin</a> · <a href="/veille/posts.xml">rss posts</a> · <a href="/veille/fiches.xml">fiches</a>{aDesNotes && <> · <a href="/notes.xml">notes</a></>} · aucun traqueur</span>
       </div>
     </footer>
   </body>

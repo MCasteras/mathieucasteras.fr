@@ -586,14 +586,6 @@ main {
   padding: 0 2px;
 }
 
-.a-completer {
-  background: var(--surface-1);
-  border-left: var(--card-rule) solid var(--accent);
-  padding: var(--space-3) var(--space-4);
-  color: var(--ink-2);
-  font-size: 15px;
-}
-
 .bandeau-exemple {
   background: var(--surface-1);
   border-bottom: var(--hairline) solid var(--rule);

@@ -25,7 +25,7 @@ const lignes = [
     </div>
     <div class="contenu">
       <h1 class="display">Vos équipes ont vu des démonstrations d'IA. Je les aide à passer à quelque chose qui tient<span class="point-accent">.</span></h1>
-      <p class="lead">Des données, des agents, une évaluation, des coûts tenus, une adoption réelle. [À COMPLÉTER : une phrase sur ce que tu fais aujourd'hui, pour qui, et depuis quand.]</p>
+      <p class="lead">Des données, des agents, une évaluation, des coûts tenus, une adoption réelle : je travaille avec vos équipes jusqu'à ce que l'usage soit en place et mesuré.</p>
       <div class="boutons">
         <a class="bouton" href="#contact">Parlons de votre cas</a>
         <a class="bouton secondaire" href="#methode">Comment je travaille</a>
@@ -40,17 +40,17 @@ const lignes = [
         <article class="carte-methode">
           <span class="mono-label">01 / comprendre</span>
           <h2 class="title-2">Le métier avant le modèle</h2>
-          <p>[À COMPLÉTER : trois lignes. Comment tu démarres, avec qui, ce que tu cherches à comprendre d'abord.]</p>
+          <p>Je pars du problème tel que vos équipes le vivent : qui fait quoi, avec quelles données, et ce qui doit changer. Le choix du modèle vient après.</p>
         </article>
         <article class="carte-methode">
           <span class="mono-label">02 / construire</span>
           <h2 class="title-2">Dans vos équipes, pas à côté</h2>
-          <p>[À COMPLÉTER : trois lignes. Le prototype, puis ce qui tient en production, avec les gens qui l'utiliseront.]</p>
+          <p>Je construis avec les personnes qui utiliseront l'outil, du premier prototype à la mise en production, pour qu'elles sachent le faire évoluer ensuite.</p>
         </article>
         <article class="carte-methode">
           <span class="mono-label">03 / mesurer</span>
           <h2 class="title-2">Évaluation, coûts, adoption</h2>
-          <p>[À COMPLÉTER : trois lignes. Ce que tu mesures, ce que tu rapportes à la direction, quand tu dis non.]</p>
+          <p>Je mesure la qualité des réponses, les coûts et l'usage réel, et je les présente à la direction. Si un cas d'usage ne tient pas, je le dis.</p>
         </article>
       </div>
     </div>
@@ -58,19 +58,21 @@ const lignes = [
 
   <section class="section" id="veille">
     <div class="repere">
-      <span class="mono-label">§ 2<br />Veille<br /><span class="compte">{comptes.posts ?? 0} · {comptes.fiches ?? 0} · {comptes.focus ?? 0}</span></span>
+      <span class="mono-label">§ 2<br />Veille{lignes.length > 0 && <><br /><span class="compte">{comptes.posts ?? 0} · {comptes.fiches ?? 0} · {comptes.focus ?? 0}</span></>}</span>
     </div>
     <div class="contenu">
       <p class="body prose-measure" style="color:var(--ink-2);margin-bottom:var(--space-5)">
-        Ce que je lis sur l'IA générative en entreprise, et ce que j'en pense. Une fiche par semaine, des dossiers quand un sujet le mérite,
-        tenus par des agents que j'ai construits et relus à la main.
+        Ce que je retiens de l'IA générative en entreprise, et ce que j'en pense. Une fiche par semaine, des dossiers quand un sujet le mérite.
+        Des agents que j'ai construits préparent le travail ; je choisis ce que je partage.
       </p>
-      {lignes.length === 0 ? <p class="body" style="color:var(--ink-2)">Rien de publié pour le moment.</p> : (
-        <ul class="liste-veille">
-          {lignes.map((l) => <LigneVeille {...l} />)}
-        </ul>
+      {lignes.length === 0 ? <a class="lien-action mono" href="/sources/">→ les sources que je suis</a> : (
+        <>
+          <ul class="liste-veille">
+            {lignes.map((l) => <LigneVeille {...l} />)}
+          </ul>
+          <a class="lien-action mono" href="/veille/">→ toute la veille</a>
+        </>
       )}
-      <a class="lien-action mono" href="/veille/">→ toute la veille</a>
     </div>
   </section>
 
@@ -78,7 +80,7 @@ const lignes = [
     <div class="repere"><span class="mono-label">§ 3<br />Outils</span></div>
     <div class="contenu bloc">
       <h2 class="title-2">Veille FDE</h2>
-      <p class="body" style="color:var(--ink-2)">Un outil de veille tenu par des agents : couche LLM agnostique, SQLite, worker, vitrine publique en lecture seule. C'est lui qui alimente la section précédente.</p>
+      <p class="body" style="color:var(--ink-2)">Un outil de veille tenu par des agents : ils collectent, résument et préparent ; je décide de ce que je garde et de ce que je partage. C'est lui qui alimente la section précédente.</p>
       <a class="lien-action" href="/outils/veille/">Comment il est construit →</a>
     </div>
   </section>
@@ -87,10 +89,9 @@ const lignes = [
     <div class="repere"><span class="mono-label">§ 4<br />Contact</span></div>
     <div class="contenu bloc">
       <h2 class="title-1">Un sujet à défricher, une équipe à embarquer&nbsp;?</h2>
-      <p class="body" style="color:var(--ink-2)">[À COMPLÉTER : pour quoi on peut te solliciter, en une phrase. Ville, disponibilité.]</p>
+      <p class="body" style="color:var(--ink-2)">Un projet d'IA générative à cadrer, ou un prototype qui doit passer en production ? Parlons-en.</p>
       <div class="boutons">
-        <a class="bouton" href="mailto:[À COMPLÉTER]">Écrire à Mathieu</a>
-        <a class="lien-action" href="https://www.linkedin.com/in/[À COMPLÉTER]" rel="noopener">LinkedIn ↗</a>
+        <a class="bouton" href="https://www.linkedin.com/in/mathieu-casteras/" rel="noopener">Me contacter sur LinkedIn ↗</a>
       </div>
     </div>
   </section>

@@ -38,7 +38,7 @@ const aQuestions = (dossier.questions_ouvertes ?? []).length > 0;
   <section class="hero page">
     <div class="repere">
       <span class="mono-label"><a href="/veille/#focus" style="color:inherit;text-decoration:none">← Dossiers focus</a></span>
-      <p class="meta"><span class="type">focus</span>{dossier.stats?.lues != null && <span>{dossier.stats.lues} lues{dossier.stats.retenues != null && `, ${dossier.stats.retenues} retenues`}</span>}</p>
+      <p class="meta"><span class="type">focus</span>{dossier.stats?.lues != null && <span>{dossier.stats.lues} sources analysées{dossier.stats.retenues != null && `, ${dossier.stats.retenues} retenues`}</span>}</p>
     </div>
     <div class="contenu">
       <h1 class="title-1">{titre}</h1>

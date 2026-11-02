@@ -68,9 +68,11 @@ describe('build sur le jeu d’exemple', () => {
 
   it('affiche les chiffres de /api/vitrine/stats et aucun autre', async () => {
     const html = await page('outils/veille');
-    expect(html).toMatch(/<strong>2<\/strong> posts publiés/);
+    expect(html).toMatch(/<strong>2<\/strong> posts partagés/);
     expect(html).toContain('octobre 2026');
-    expect(html).toContain('<td>55</td><td>18</td><td>9</td>');
+    expect(html).toContain('<td>55</td><td>18</td></tr>');
+    expect(html).not.toContain('>Lus<');
+    expect(html).toMatch(/<strong>1<\/strong> fiche hebdo/);
     expect(html).not.toContain('0,1234'); // l'usage LLM (coût) ne sort pas sur le site
   });
 
@@ -104,6 +106,21 @@ describe('build sur le jeu d’exemple', () => {
       expect(carte).toContain(`<loc>https://site.test${p}</loc>`);
     }
     expect(carte).not.toContain('/404');
+  });
+
+  it('ne publie aucun texte à compléter ni note d’accès, et donne le contact', async () => {
+    for (const p of ['', 'veille', 'outils', 'outils/veille', 'sources', 'notes', 'veille/focus/f-exemple1']) {
+      const html = await page(p);
+      expect(html, p).not.toContain('COMPLÉTER');
+      expect(html, p).not.toMatch(/\b\d+ lues\b/);
+    }
+    const accueil = await page('');
+    expect(accueil).toContain('https://www.linkedin.com/in/mathieu-casteras/');
+    expect(accueil).not.toContain('mailto:');
+    const sources = await page('sources');
+    expect(sources).toContain('Praticiens');
+    expect(sources).toContain('Autres sources');
+    expect(sources).not.toContain('Filets de sécurité');
   });
 
   it('refuse de construire en production sans API', async () => {

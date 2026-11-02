@@ -8,7 +8,7 @@ interface Props {
 }
 const { numero = 2 } = Astro.props;
 
-interface Mois { mois: string; collectes?: number | null; retenus?: number | null; lus?: number | null }
+interface Mois { mois: string; collectes?: number | null; retenus?: number | null }
 const stats = (await getEntry('vitrine', 'stats'))?.data as
   | { items_par_mois?: Mois[]; posts_publies?: number; fiches?: number; focus?: number }
   | undefined;
@@ -19,6 +19,7 @@ const libelle = (m: string) => {
   return Number.isNaN(d.getTime()) ? m : nomMois.format(d);
 };
 const n = (v: number | null | undefined) => (typeof v === 'number' ? v.toLocaleString('fr-FR') : '');
+const pluriel = (v: number | undefined, un: string, plusieurs: string) => (v != null && v >= 2 ? plusieurs : un);
 ---
 
 {stats && (
@@ -26,20 +27,20 @@ const n = (v: number | null | undefined) => (typeof v === 'number' ? v.toLocaleS
     <div class="repere"><span class="mono-label">§ {numero}<br />En chiffres</span></div>
     <div class="contenu bloc large">
       <p class="compteurs">
-        <span><strong>{n(stats.posts_publies)}</strong> posts publiés</span>
-        <span><strong>{n(stats.fiches)}</strong> fiches hebdo</span>
-        <span><strong>{n(stats.focus)}</strong> dossiers focus</span>
+        <span><strong>{n(stats.posts_publies)}</strong> {pluriel(stats.posts_publies, 'post partagé', 'posts partagés')}</span>
+        <span><strong>{n(stats.fiches)}</strong> {pluriel(stats.fiches, 'fiche hebdo', 'fiches hebdo')}</span>
+        <span><strong>{n(stats.focus)}</strong> {pluriel(stats.focus, 'dossier focus', 'dossiers focus')}</span>
       </p>
       {mois.length > 0 && (
         <div class="defilant">
           <table>
             <caption class="mono-meta">Articles par mois, douze derniers mois</caption>
             <thead>
-              <tr><th>Mois</th><th>Collectés</th><th>Retenus</th><th>Lus</th></tr>
+              <tr><th>Mois</th><th>Collectés</th><th>Retenus</th></tr>
             </thead>
             <tbody>
               {mois.map((m) => (
-                <tr><td>{libelle(m.mois)}</td><td>{n(m.collectes)}</td><td>{n(m.retenus)}</td><td>{n(m.lus)}</td></tr>
+                <tr><td>{libelle(m.mois)}</td><td>{n(m.collectes)}</td><td>{n(m.retenus)}</td></tr>
               ))}
             </tbody>
           </table>

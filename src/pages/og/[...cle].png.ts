@@ -12,7 +12,7 @@ export async function getStaticPaths() {
     { cle: 'defaut', svg: svgCarte('Mathieu Casteras', 'Forward Deployed Engineer · IA générative en entreprise') },
     { cle: 'veille', svg: svgCarte('Veille', 'Posts, fiches hebdo et dossiers focus') },
     { cle: 'outils', svg: svgCarte('Outils') },
-    { cle: 'sources', svg: svgCarte('Sources', 'Ce que ma veille lit') },
+    { cle: 'sources', svg: svgCarte('Sources', 'Ce que ma veille suit') },
     { cle: 'notes', svg: svgCarte('Notes', "Notes de construction et retours d'expérience") },
   ];
   for (const p of await getCollection('posts')) {

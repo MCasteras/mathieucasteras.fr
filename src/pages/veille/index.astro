@@ -1,5 +1,5 @@
 ---
-/** Veille : trois sections à repère (posts, fiches hebdo, dossiers focus), en lignes de liste. */
+/** Veille : une section à repère par nature de document présente (posts, fiches hebdo, dossiers focus), en lignes de liste. */
 import { getCollection } from 'astro:content';
 import Base from '../../layouts/Base.astro';
 import LigneVeille from '../../components/LigneVeille.astro';
@@ -8,47 +8,51 @@ import { extrait } from '../../lib/format';
 const posts = (await getCollection('posts')).sort((a, b) => (b.data.publie_le ?? '').localeCompare(a.data.publie_le ?? ''));
 const fiches = (await getCollection('fiches')).sort((a, b) => (b.data.valide_le ?? '').localeCompare(a.data.valide_le ?? ''));
 const focus = (await getCollection('focus')).sort((a, b) => (b.data.pret_le ?? '').localeCompare(a.data.pret_le ?? ''));
+const total = posts.length + fiches.length + focus.length;
+/** Les repères se numérotent sur les seules sections présentes. */
+const num = { posts: 1, fiches: posts.length > 0 ? 2 : 1, focus: 1 + (posts.length > 0 ? 1 : 0) + (fiches.length > 0 ? 1 : 0) };
 ---
 
 <Base titre="Veille" description="Posts, fiches hebdomadaires et dossiers focus sur l'IA générative en entreprise." image="/og/veille.png">
   <section class="hero page">
-    <div class="repere"><span class="mono-label">Veille<br /><span class="compte">{posts.length} · {fiches.length} · {focus.length}</span></span></div>
+    <div class="repere"><span class="mono-label">Veille{total > 0 && <><br /><span class="compte">{posts.length} · {fiches.length} · {focus.length}</span></>}</span></div>
     <div class="contenu">
-      <h1 class="title-1">Ce que je publie de ma veille</h1>
+      <h1 class="title-1">Ce que je partage de ma veille</h1>
       <p class="lead">Des posts, une fiche par semaine, des dossiers sur un sujet. Chaque source citée renvoie à l'original.</p>
+      {total === 0 && <p class="body">Les premières publications arriveront ici. En attendant, voici <a href="/sources/">les sources que je suis</a>.</p>}
     </div>
   </section>
 
-  <section class="section" id="posts">
-    <div class="repere"><span class="mono-label">§ 1<br />Posts</span></div>
-    <div class="contenu">
-      {posts.length === 0 ? <p class="body" style="color:var(--ink-2)">Aucun post publié pour le moment.</p> : (
+  {posts.length > 0 && (
+    <section class="section" id="posts">
+      <div class="repere"><span class="mono-label">§ {num.posts}<br />Posts</span></div>
+      <div class="contenu">
         <ul class="liste-veille">
           {posts.map((p) => <LigneVeille href={`/veille/posts/${p.id}/`} date={p.data.publie_le} type="post" titre={p.data.titres?.[0] || extrait(p.data.texte, 80) || p.id} extrait={extrait(p.data.texte, 140)} />)}
         </ul>
-      )}
-    </div>
-  </section>
+      </div>
+    </section>
+  )}
 
-  <section class="section" id="fiches">
-    <div class="repere"><span class="mono-label">§ 2<br />Fiches hebdo</span></div>
-    <div class="contenu">
-      {fiches.length === 0 ? <p class="body" style="color:var(--ink-2)">Aucune fiche publiée pour le moment.</p> : (
+  {fiches.length > 0 && (
+    <section class="section" id="fiches">
+      <div class="repere"><span class="mono-label">§ {num.fiches}<br />Fiches hebdo</span></div>
+      <div class="contenu">
         <ul class="liste-veille">
           {fiches.map((f) => <LigneVeille href={`/veille/fiches/${f.id}/`} date={f.data.valide_le} type="fiche" titre={f.data.titre || f.id} extrait={f.data.en_une_phrase} />)}
         </ul>
-      )}
-    </div>
-  </section>
+      </div>
+    </section>
+  )}
 
-  <section class="section" id="focus">
-    <div class="repere"><span class="mono-label">§ 3<br />Dossiers focus</span></div>
-    <div class="contenu">
-      {focus.length === 0 ? <p class="body" style="color:var(--ink-2)">Aucun dossier publié pour le moment.</p> : (
+  {focus.length > 0 && (
+    <section class="section" id="focus">
+      <div class="repere"><span class="mono-label">§ {num.focus}<br />Dossiers focus</span></div>
+      <div class="contenu">
         <ul class="liste-veille">
           {focus.map((f) => <LigneVeille href={`/veille/focus/${f.id}/`} date={f.data.pret_le} type="focus" titre={f.data.dossier?.titre || f.data.cadre?.titre || f.id} extrait={f.data.dossier?.verdict} />)}
         </ul>
-      )}
-    </div>
-  </section>
+      </div>
+    </section>
+  )}
 </Base>

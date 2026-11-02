@@ -1,8 +1,8 @@
 {
   "version": 1,
   "items_par_mois": [
-    { "mois": "2026-09", "collectes": 40, "retenus": 12, "lus": 5 },
-    { "mois": "2026-10", "collectes": 55, "retenus": 18, "lus": 9 }
+    { "mois": "2026-09", "collectes": 40, "retenus": 12 },
+    { "mois": "2026-10", "collectes": 55, "retenus": 18 }
   ],
   "posts_publies": 2,
   "fiches": 1,

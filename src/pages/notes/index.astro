@@ -9,21 +9,22 @@ const notes = (await getCollection('notes', (n) => !n.data.brouillon)).sort((a, 
 
 <Base titre="Notes" description="Notes de construction et retours d'expérience." image="/og/notes.png">
   <section class="hero page">
-    <div class="repere"><span class="mono-label">Notes<br /><span class="compte">{notes.length}</span></span></div>
+    <div class="repere"><span class="mono-label">Notes{notes.length > 0 && <><br /><span class="compte">{notes.length}</span></>}</span></div>
     <div class="contenu">
       <h1 class="title-1">Notes</h1>
       <p class="lead">Notes de construction, retours d'expérience, choses apprises en chemin.</p>
+      {notes.length === 0 && <p class="body">Les premières notes arriveront ici.</p>}
     </div>
   </section>
 
-  <section class="section">
-    <div class="repere"><span class="mono-label">§ 1<br />Toutes les notes</span></div>
-    <div class="contenu">
-      {notes.length === 0 ? <p class="body" style="color:var(--ink-2)">Aucune note publiée pour le moment.</p> : (
+  {notes.length > 0 && (
+    <section class="section">
+      <div class="repere"><span class="mono-label">§ 1<br />Toutes les notes</span></div>
+      <div class="contenu">
         <ul class="liste-veille">
           {notes.map((n) => <LigneVeille href={`/notes/${n.id}/`} date={n.data.date.toISOString()} type="note" titre={n.data.titre} extrait={n.data.resume} />)}
         </ul>
-      )}
-    </div>
-  </section>
+      </div>
+    </section>
+  )}
 </Base>

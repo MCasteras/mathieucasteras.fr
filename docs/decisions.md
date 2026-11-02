@@ -70,3 +70,6 @@ retoucher) toute illustration qui contient un script, un gestionnaire d'événem
 `foreignObject` ; le post est alors publié sans image et le build le signale. `url_linkedin` n'est mis dans un `href` que si c'est
 une URL `https://`. Le journal de `site-builder` nettoie le motif et le User-Agent reçus (pas de ligne forgée). L'image tourne
 sous `node` ; ses données sont dans des volumes nommés, l'uid de l'hôte n'intervient donc pas ; `/srv/site`, `/data` et `/app` lui appartiennent.
+
+## 2026-11-02 — Passe sur les textes : plus de texte à compléter ni de page vide
+Mat ne veut rien d'inachevé en ligne : les textes sont écrits sans mission, client ni chiffre, le contact passe par LinkedIn (aucune adresse publiée), et ce qui est vide se masque (sections de Veille, entrée Notes). On ne parle plus d'articles lus : le compteur `lus` ne mesure pas ce qui est partagé, il n'a donc pas été renommé mais retiré, et « posts partagés » reprend `posts_publies`. Les sources se groupent par catégorie, pas par note d'accès.

@@ -15,7 +15,7 @@ via les content collections). Pas de base, pas de connexion, pas de formulaire :
 - Aucune donnée réelle de la veille dans le dépôt : seul le jeu d'exemple `fixtures/vitrine/*.json`, clairement factice (`[EXEMPLE]`).
 - Si l'API est injoignable au build : repli sur le jeu d'exemple avec un bandeau, **sauf** si `VITRINE_OBLIGATOIRE=1` (production),
   où le build échoue. Un schéma d'une autre version que `1` fait toujours échouer le build.
-- Aucun chiffre, aucune mission, aucun client inventé dans les textes : laisser des `[À COMPLÉTER]` explicites. Les chiffres de
+- Aucun chiffre, aucune mission, aucun client inventé dans les textes : une phrase générale vraie plutôt qu'un exemple douteux, et jamais de texte à compléter en ligne. Les chiffres de
   l'outil de veille viennent uniquement de `/api/vitrine/stats`.
 - Les SVG des posts sont déjà nettoyés par l'API : on les insère tels quels, sans les retoucher.
 - Une source sans `url` s'affiche sans lien ; les `refs` renvoient aux `n` des `sources` de la même page.
