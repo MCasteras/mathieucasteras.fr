@@ -69,4 +69,4 @@ SVG malveillant passait le nettoyage de l'API, rien ne s'exécuterait. Second fi
 retoucher) toute illustration qui contient un script, un gestionnaire d'événement, un lien ou une ressource externe, un
 `foreignObject` ; le post est alors publié sans image et le build le signale. `url_linkedin` n'est mis dans un `href` que si c'est
 une URL `https://`. Le journal de `site-builder` nettoie le motif et le User-Agent reçus (pas de ligne forgée). L'image tourne
-sous `node` (uid 1000, celui de `mat` sur la VM) ; `/srv/site`, `/data` et `/app` lui appartiennent.
+sous `node` ; ses données sont dans des volumes nommés, l'uid de l'hôte n'intervient donc pas ; `/srv/site`, `/data` et `/app` lui appartiennent.

@@ -1,6 +1,6 @@
 # Image de `site-builder` : le dépôt, ses dépendances figées, et le petit serveur deploy/builder/serveur.mjs.
 # Contexte de build : la racine du dépôt (voir deploy/docker-compose.yml). Reconstruire l'image après un `git pull`.
-# Tourne sous l'utilisateur `node` (uid 1000, celui de `mat` sur la VM), jamais en root.
+# Tourne sous l'utilisateur `node`, jamais en root. Ses données sont dans des volumes nommés : l'uid de l'hôte n'intervient pas.
 FROM node:22-bookworm-slim
 
 # DejaVu Sans pour le rendu serveur des images Open Graph (resvg) ; rien n'est chargé par le navigateur.
