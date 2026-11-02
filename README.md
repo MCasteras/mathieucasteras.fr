@@ -109,7 +109,7 @@ domaine, redirige `www`, et joint l'outil de veille sous `veille.<domaine>`. Il 
 | --- | --- |
 | Réseau Docker `web` (externe) | créé une fois à la main : `docker network create web`. Tous les composes le déclarent `external: true`. |
 | Volume `site_dist` (externe) | créé une fois : `docker volume create site_dist`. `site-builder` (séance 3) y construit le site ; Caddy le sert depuis `/srv/site`. |
-| `serveur/Caddyfile` | un bloc par hôte (`{$DOMAINE}`, `www`, `veille`), l'adresse ACME, rien d'autre. |
+| `serveur/Caddyfile` | un bloc par hôte (`{$DOMAINE}`, `www`, `veille`), rien d'autre. |
 | `deploy/caddy/site.caddy` | les directives du site : `root`, `file_server`, compression, en-têtes, `/rebuild` → `site-builder:8080`. |
 | `veille-fde/deploy/caddy/veille.caddy` | les directives de la veille (`reverse_proxy veille-fde-app:8000`), lues dans le clone voisin (`CHEMIN_VEILLE`). |
 | Certificats | volume `caddy_data`, à inclure dans les sauvegardes. |
@@ -125,7 +125,7 @@ avant le premier démarrage : Caddy monte `veille.caddy` depuis le clone voisin,
 ```bash
 git clone git@github.com:MCasteras/mathieucasteras.fr.git ~/mathieucasteras.fr
 git clone git@github.com:MCasteras/veille-fde.git ~/veille-fde
-cd ~/mathieucasteras.fr/serveur && cp .env.example .env && nano .env     # DOMAINE, ACME_EMAIL
+cd ~/mathieucasteras.fr/serveur && cp .env.example .env && nano .env     # DOMAINE
 docker network create web
 docker volume create site_dist
 docker compose up -d
@@ -147,7 +147,7 @@ l'ordre : `veille-fde` (`deploy/README.md`), puis le site (`deploy/`, séance 3)
 ### Valider sans la VM
 
 ```bash
-docker run --rm -e DOMAINE=exemple.fr -e ACME_EMAIL=a@exemple.fr -v "$PWD/serveur/Caddyfile:/etc/caddy/Caddyfile:ro" -v "$PWD/deploy/caddy/site.caddy:/etc/caddy/sites/site.caddy:ro" -v "$PWD/../veille-fde/deploy/caddy/veille.caddy:/etc/caddy/sites/veille.caddy:ro" caddy:2 caddy validate --config /etc/caddy/Caddyfile
+docker run --rm -e DOMAINE=exemple.fr -v "$PWD/serveur/Caddyfile:/etc/caddy/Caddyfile:ro" -v "$PWD/deploy/caddy/site.caddy:/etc/caddy/sites/site.caddy:ro" -v "$PWD/../veille-fde/deploy/caddy/veille.caddy:/etc/caddy/sites/veille.caddy:ro" caddy:2 caddy validate --config /etc/caddy/Caddyfile
 ```
 
 ## Séances

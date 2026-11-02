@@ -31,7 +31,7 @@ via les content collections). Pas de base, pas de connexion, pas de formulaire :
 - `tests/` : vitest ; `tests/build.test.ts` construit le site sur le jeu d'exemple.
 - `deploy/` : docker-compose (`site-builder`), fragment Caddy `caddy/site.caddy`, `.env.example`.
 - `serveur/` : le Caddy partagé de la VM (compose, `Caddyfile` à un bloc par hôte, `reload.sh`, `.env.example`). Le Caddyfile ne
-  contient que les hôtes et l'adresse ACME ; les directives d'un site vont dans son fragment. Après tout changement : `reload.sh`,
+  contient que les hôtes ; les directives d'un site vont dans son fragment. Après tout changement : `reload.sh`,
   jamais `docker compose down`. Un nouveau service = un conteneur nommé joint à `web`, un fragment, un bloc d'hôte, pas de port publié.
 
 ## Façon de travailler
