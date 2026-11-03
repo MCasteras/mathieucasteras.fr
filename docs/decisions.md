@@ -73,3 +73,9 @@ sous `node` ; ses données sont dans des volumes nommés, l'uid de l'hôte n'int
 
 ## 2026-11-02 — Passe sur les textes : plus de texte à compléter ni de page vide
 Mat ne veut rien d'inachevé en ligne : les textes sont écrits sans mission, client ni chiffre, le contact passe par LinkedIn (aucune adresse publiée), et ce qui est vide se masque (sections de Veille, entrée Notes). On ne parle plus d'articles lus : le compteur `lus` ne mesure pas ce qui est partagé, il n'a donc pas été renommé mais retiré, et « posts partagés » reprend `posts_publies`. Les sources se groupent par catégorie, pas par note d'accès.
+
+## 2026-11-04 — Revue : délai de lecture, liens filtrés, plus d'usage public
+Une API qui ne répond plus figeait le build, donc toutes les reconstructions suivantes : 60 s par route. Les liens vers les sources
+passent par `urlWeb` (http ou https), second filet derrière l'API. L'API ne publie plus les coûts ni la consommation (décision côté
+veille, `docs/01`) : le jeu d'exemple suit. Favicon : le MC de la charte remplace celui d'Astro.
+

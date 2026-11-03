@@ -52,7 +52,7 @@ Flux RSS : `/veille/posts.xml`, `/veille/fiches.xml`, `/notes.xml`. Plan du site
 ## Contrat avec la veille
 
 Le site lit, au build, les six routes `GET <VITRINE_API>/api/vitrine{,/posts,/fiches,/focus,/sources,/stats}` décrites dans
-`veille-fde/docs/14-site-vitrine.md § 2` et n'affiche rien d'autre. Il vérifie `version == 1`. Il n'écrit jamais côté veille.
+`veille-fde/docs/14-site-vitrine.md § 2` et n'affiche rien d'autre. Il vérifie `version == 1`, attend chaque réponse 60 s au plus et n'écrit jamais côté veille.
 
 **Webhook.** Quand la vitrine change, le worker de la veille fait `POST https://mathieucasteras.fr/rebuild` avec
 `Authorization: Bearer <secret>` et un corps vide. Caddy le passe à `site-builder:8080`, qui répond **202** tout de suite et
@@ -159,4 +159,4 @@ docker run --rm -e DOMAINE=exemple.fr -v "$PWD/serveur/Caddyfile:/etc/caddy/Cadd
 1. Squelette Astro, charte, accueil, Veille (posts, fiches, focus) sur la route publique avec repli sur le jeu d'exemple. **Fait.**
 2. Outils, Sources, Notes, flux RSS (posts, fiches, notes), sitemap, page 404. **Fait.**
 3. Images Open Graph depuis les SVG, `site-builder` (build, `POST /rebuild`, reconstruction nocturne, releases), fragment Caddy, README complet. **Fait.**
-4. Finitions, export réel en jeu d'exemple, première mise en ligne.
+4. Finitions, première mise en ligne (2 nov. 2026). **Fait.** Le jeu d'exemple reste factice : un export réel n'y a pas sa place.
