@@ -79,3 +79,9 @@ Une API qui ne répond plus figeait le build, donc toutes les reconstructions su
 passent par `urlWeb` (http ou https), second filet derrière l'API. L'API ne publie plus les coûts ni la consommation (décision côté
 veille, `docs/01`) : le jeu d'exemple suit. Favicon : le MC de la charte remplace celui d'Astro.
 
+## 2026-11-04 — Projet Docker `site`, fragments Caddy montés par dossier
+Les composes du site et de la veille vivaient tous deux dans un dossier `deploy/`, donc dans le même projet Docker : chacun voyait
+l'autre comme orphelin, et `--remove-orphans` aurait supprimé le voisin. Chacun a maintenant son nom (`name: site`, `name: veille-fde`).
+Les fragments Caddy étaient montés fichier par fichier : `git pull` remplace le fichier, le conteneur gardait l'ancien, et `reload.sh`
+rechargeait une vieille version sans rien dire. On monte les dossiers `deploy/caddy`.
+

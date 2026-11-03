@@ -151,7 +151,7 @@ l'ordre : `veille-fde` (`deploy/README.md`), puis le site (`deploy/`, séance 3)
 ### Valider sans la VM
 
 ```bash
-docker run --rm -e DOMAINE=exemple.fr -v "$PWD/serveur/Caddyfile:/etc/caddy/Caddyfile:ro" -v "$PWD/deploy/caddy/site.caddy:/etc/caddy/sites/site.caddy:ro" -v "$PWD/../veille-fde/deploy/caddy/veille.caddy:/etc/caddy/sites/veille.caddy:ro" caddy:2 caddy validate --config /etc/caddy/Caddyfile
+docker run --rm -e DOMAINE=exemple.fr -v "$PWD/serveur/Caddyfile:/etc/caddy/Caddyfile:ro" -v "$PWD/deploy/caddy:/etc/caddy/sites/site:ro" -v "$PWD/../veille-fde/deploy/caddy:/etc/caddy/sites/veille:ro" caddy:2 caddy validate --config /etc/caddy/Caddyfile
 ```
 
 ## Séances

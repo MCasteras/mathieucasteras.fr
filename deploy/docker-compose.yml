@@ -2,6 +2,7 @@
 # POST /rebuild sur le réseau externe `web`, joint par Caddy sous https://<domaine>/rebuild. Aucun port publié.
 # Pré-requis : serveur/ en place (réseau web, volume site_dist), deploy/.env rempli (voir .env.example).
 # Lancer : docker compose up -d --build. Mise à jour : ./update.sh.
+name: site                      # projet Docker propre : la veille a aussi son compose dans un dossier deploy/
 services:
   site-builder:
     build: { context: .., dockerfile: deploy/Dockerfile }

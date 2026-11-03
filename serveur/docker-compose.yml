@@ -15,8 +15,9 @@ services:
       - "443:443/udp"          # HTTP/3
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
-      - ../deploy/caddy/site.caddy:/etc/caddy/sites/site.caddy:ro
-      - ${CHEMIN_VEILLE:-/home/mat/veille-fde}/deploy/caddy/veille.caddy:/etc/caddy/sites/veille.caddy:ro
+      # Des dossiers, pas des fichiers : `git pull` remplace un fichier, et un montage de fichier garderait l'ancienne version.
+      - ../deploy/caddy:/etc/caddy/sites/site:ro
+      - ${CHEMIN_VEILLE:-/home/mat/veille-fde}/deploy/caddy:/etc/caddy/sites/veille:ro
       - site_dist:/srv/site:ro  # le site statique, construit par `site-builder` (deploy/docker-compose.yml)
       - caddy_data:/data        # certificats : à sauvegarder, sinon Let's Encrypt est resollicité
       - caddy_config:/config

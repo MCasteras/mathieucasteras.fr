@@ -1,5 +1,5 @@
 # Fragment Caddy du site, importé par le Caddy partagé du dépôt `serveur` dans le bloc du domaine racine
-# (`{$DOMAINE} { import /etc/caddy/sites/site.caddy }`). Ni hôte, ni TLS, ni redirection www : `serveur` s'en charge.
+# (`{$DOMAINE} { import /etc/caddy/sites/site/site.caddy }`). Ni hôte, ni TLS, ni redirection www : `serveur` s'en charge.
 # `serveur` monte le volume `site_dist` sur /srv/site ; `site-builder` y construit chaque version dans releases/<horodatage>
 # et bascule le lien symbolique `current` : un build raté ne change rien à ce qui est servi.
 root * /srv/site/current

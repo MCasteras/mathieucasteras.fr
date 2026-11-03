@@ -1,10 +1,10 @@
 # Caddy partagé de la VM. Ce fichier ne porte que les hôtes ; les directives de chaque site sont dans son fragment (monté
-# dans /etc/caddy/sites/ par docker-compose.yml). DOMAINE vient de .env. Pas d'adresse ACME : elle n'est pas nécessaire pour
+# dans /etc/caddy/sites/<nom>/ par docker-compose.yml). DOMAINE vient de .env. Pas d'adresse ACME : elle n'est pas nécessaire pour
 # obtenir un certificat, et Caddy les renouvelle seul.
 # Vérifier avant de recharger : ./reload.sh (caddy validate puis caddy reload, sans coupure).
 # Site public, à la racine du domaine (deploy/caddy/site.caddy)
 {$DOMAINE} {
-	import /etc/caddy/sites/site.caddy
+	import /etc/caddy/sites/site/site.caddy
 }
 
 www.{$DOMAINE} {
@@ -13,5 +13,5 @@ www.{$DOMAINE} {
 
 # Veille FDE, outil privé (dépôt veille-fde, deploy/caddy/veille.caddy)
 veille.{$DOMAINE} {
-	import /etc/caddy/sites/veille.caddy
+	import /etc/caddy/sites/veille/veille.caddy
 }
