@@ -38,6 +38,7 @@ export interface Options {
 export class VitrineIndisponible extends Error {}
 
 const USER_AGENT = 'mathieucasteras.fr (build statique)';
+const DELAI_MS = 60_000;
 
 function chemin(route: Route): string {
   return route === 'index' ? '/api/vitrine' : `/api/vitrine/${route}`;
@@ -49,7 +50,8 @@ function vrai(valeur: string | undefined): boolean {
 
 async function lireRoute(base: string, route: Route, fetcher: typeof fetch): Promise<unknown> {
   const url = base.replace(/\/+$/, '') + chemin(route);
-  const reponse = await fetcher(url, { headers: { Accept: 'application/json', 'User-Agent': USER_AGENT } });
+  // Une API qui ne répond plus ne doit pas figer le build, donc toutes les reconstructions suivantes.
+  const reponse = await fetcher(url, { headers: { Accept: 'application/json', 'User-Agent': USER_AGENT }, signal: AbortSignal.timeout(DELAI_MS) });
   if (!reponse.ok) throw new VitrineIndisponible(`${url} : HTTP ${reponse.status}`);
   return reponse.json();
 }

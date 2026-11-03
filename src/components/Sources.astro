@@ -1,5 +1,7 @@
 ---
 /** Section « Sources » d'une page : chaque source pointe vers l'original quand son URL est publique, sinon titre et nom sans lien. */
+import { urlWeb } from '../lib/format';
+
 interface Source {
   n?: number | string | null;
   titre?: string | null;
@@ -15,7 +17,7 @@ interface Props {
   numero?: number;
 }
 const { sources, titre = 'Sources', numero } = Astro.props;
-const liste = (sources ?? []).filter((s) => s.titre || s.source || s.url);
+const liste = (sources ?? []).filter((s) => s.titre || s.source || s.url).map((s) => ({ ...s, url: urlWeb(s.url) }));
 const numerotee = liste.some((s) => s.n != null);
 ---
 

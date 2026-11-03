@@ -45,3 +45,9 @@ export function urlHttps(v: string | null | undefined): string | undefined {
   const u = (v ?? '').trim();
   return /^https:\/\/[^\s/]+\.[^\s/]+/.test(u) ? u : undefined;
 }
+
+/** Une URL http(s), ou rien : second filet derrière l'API pour les liens vers les sources (jamais un `javascript:`). */
+export function urlWeb(v: string | null | undefined): string | undefined {
+  const u = (v ?? '').trim();
+  return /^https?:\/\/[^\s]/i.test(u) ? u : undefined;
+}

@@ -27,3 +27,11 @@ describe('svgSur', () => {
     expect(svgSur(svg)).toBe(false);
   });
 });
+
+describe('urlWeb', () => {
+  it('ne garde que http(s)', async () => {
+    const { urlWeb } = await import('../src/lib/format');
+    expect(urlWeb(' https://a.fr/x ')).toBe('https://a.fr/x');
+    for (const u of ['javascript:alert(1)', 'data:text/html,x', '//a.fr', '/x', '', null, undefined]) expect(urlWeb(u)).toBeUndefined();
+  });
+});

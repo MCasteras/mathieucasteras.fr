@@ -3,6 +3,7 @@
 import { getCollection } from 'astro:content';
 import Base from '../../layouts/Base.astro';
 import Themes from '../../components/Themes.astro';
+import { urlWeb } from '../../lib/format';
 
 /** Deux catégories parlent de l'outil plutôt que de leur contenu : elles se lisent mieux sous un seul titre. */
 const LIBELLES: Record<string, string> = { 'filets de sécurité': 'Autres sources', enrichissement: 'Autres sources', autre: 'Autres sources' };
@@ -35,7 +36,7 @@ const majuscule = (t: string) => t.charAt(0).toUpperCase() + t.slice(1);
           {groupes.get(type)!.map((s) => (
             <li>
               <div class="ligne" style="grid-template-columns:minmax(0,1fr) auto">
-                <span class="ligne-titre">{s.data.url ? <a href={s.data.url} rel="noopener" style="color:inherit;text-decoration:none">{s.data.nom || s.data.url} ↗</a> : <span>{s.data.nom || 'Sans nom'}</span>}</span>
+                <span class="ligne-titre">{urlWeb(s.data.url) ? <a href={urlWeb(s.data.url)} rel="noopener" style="color:inherit;text-decoration:none">{s.data.nom || s.data.url} ↗</a> : <span>{s.data.nom || 'Sans nom'}</span>}</span>
                 <span class="etiquettes"><Themes themes={s.data.themes} /></span>
               </div>
             </li>
