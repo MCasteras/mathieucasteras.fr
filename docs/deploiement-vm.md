@@ -1,6 +1,6 @@
 # Déployer la VM de A à Z
 
-Le guide pour remonter toute la machine : le Caddy partagé, la veille et le site. Il reprend ce qui a été fait le 2 novembre 2026 sur le VPS OVH, avec les pièges rencontrés.
+Le guide pour remonter toute la machine : le Caddy partagé, la veille, le site et Allium. Il reprend ce qui a été fait le 2 novembre 2026 sur le VPS OVH, avec les pièges rencontrés.
 
 **Ce dépôt est public** : aucun secret ici, seulement l'endroit où les mettre.
 
@@ -22,13 +22,15 @@ Toujours écrire les chemins de la VM en entier (`/home/mat/…`) dans une comma
 Internet ── 80/443 ──► caddy ──┬── mathieucasteras.fr ──► volume site_dist (fichiers statiques)
                                │                  └─/rebuild ──► site-builder:8080
                                ├── www ──► redirection vers la racine
-                               └── veille.mathieucasteras.fr ──► veille-fde-app:8000
+                               ├── veille.mathieucasteras.fr ──► veille-fde-app:8000
+                               └── allium.mathieucasteras.fr ──► allium-app:8000
 
-Réseau Docker `web` : caddy, site-builder, veille-fde-app. Aucun autre port publié.
+Réseau Docker `web` : caddy, site-builder, veille-fde-app, allium-app. Aucun autre port publié.
 Réseau `interne` (veille) : veille-fde-app, veille-fde-worker, veille-fde-searxng.
+Réseau `interne` (allium) : allium-app, allium-db.
 ```
 
-L'ordre compte : **Caddy, puis la veille, puis le site**. En production, le site refuse de se construire si la veille ne répond pas, ce qui évite de publier le jeu d'exemple factice.
+L'ordre compte : **Caddy, puis la veille, puis le site, puis Allium** (Allium ne dépend que de Caddy, mais le site, lui, dépend de la veille). En production, le site refuse de se construire si la veille ne répond pas, ce qui évite de publier le jeu d'exemple factice.
 
 | Élément | Où |
 | --- | --- |
@@ -36,8 +38,11 @@ L'ordre compte : **Caddy, puis la veille, puis le site**. En production, le site
 | Site | `/home/mat/mathieucasteras.fr/deploy/` |
 | Veille | `/home/mat/veille-fde/deploy/` |
 | Base de la veille | `/home/mat/veille-fde/data/veille.db` |
-| Copies nocturnes | `/home/mat/veille-fde/data/backups/` |
-| Secrets | `deploy/.env` de la veille, `deploy/.env` du site, `serveur/.env` (jamais dans Git) |
+| Copies nocturnes de la veille | `/home/mat/veille-fde/data/backups/` |
+| Allium | `/home/mat/allium/deploy/` (dépôt `MCasteras/Allium`, dossier en minuscules) |
+| Base d'Allium | volume Docker `allium_pgdata` |
+| Copies nocturnes d'Allium | `/home/mat/allium/data/sauvegardes/` (`deploy/sauvegarde.sh`, crontab de `mat`) |
+| Secrets | `deploy/.env` de la veille, `deploy/.env` du site, `deploy/.env` d'Allium, `serveur/.env` (jamais dans Git) |
 
 ## 0. Sauver l'ancienne machine (si elle existe encore)
 
@@ -174,11 +179,13 @@ Dans la zone OVH de `mathieucasteras.fr`, supprime les `A`/`AAAA` posés par dé
 | AAAA | `www` | IPv6 du VPS |
 | A | `veille` | IPv4 du VPS |
 | AAAA | `veille` | IPv6 du VPS |
+| A | `allium` | IPv4 du VPS |
+| AAAA | `allium` | IPv6 du VPS |
 
 Attends la propagation, sinon Let's Encrypt échouera :
 
 ```bash
-dig +short mathieucasteras.fr www.mathieucasteras.fr veille.mathieucasteras.fr
+dig +short mathieucasteras.fr www.mathieucasteras.fr veille.mathieucasteras.fr allium.mathieucasteras.fr
 ```
 
 ```bash
@@ -196,7 +203,7 @@ ssh vps 'ip -6 addr show scope global; curl -6 -s -m 10 -o /dev/null -w "%{http_
 GitHub refuse la même clé de déploiement sur deux dépôts : il en faut une par dépôt, avec un alias SSH pour chacune. Les clés se créent **sur la VM**.
 
 ```bash
-ssh vps 'ssh-keygen -q -t ed25519 -N "" -C "vps site" -f ~/.ssh/id_github && ssh-keygen -q -t ed25519 -N "" -C "vps veille" -f ~/.ssh/id_github_veille && hostname && cat ~/.ssh/id_github.pub ~/.ssh/id_github_veille.pub'
+ssh vps 'ssh-keygen -q -t ed25519 -N "" -C "vps site" -f ~/.ssh/id_github && ssh-keygen -q -t ed25519 -N "" -C "vps veille" -f ~/.ssh/id_github_veille && ssh-keygen -q -t ed25519 -N "" -C "vps allium" -f ~/.ssh/id_github_allium && hostname && cat ~/.ssh/id_github.pub ~/.ssh/id_github_veille.pub ~/.ssh/id_github_allium.pub'
 ```
 
 Ajoute chaque clé dans *Settings › Deploy keys › Add deploy key*, « Allow write access » décoché. Retire d'abord celles de l'ancienne machine.
@@ -205,35 +212,36 @@ Ajoute chaque clé dans *Settings › Deploy keys › Add deploy key*, « Allow 
 | --- | --- | --- |
 | `vps site` | `MCasteras/mathieucasteras.fr` | https://github.com/MCasteras/mathieucasteras.fr/settings/keys |
 | `vps veille` | `MCasteras/veille-fde` | https://github.com/MCasteras/veille-fde/settings/keys |
+| `vps allium` | `MCasteras/Allium` | https://github.com/MCasteras/Allium/settings/keys |
 
 Puis configure les alias et teste :
 
 ```bash
-ssh vps 'printf "Host github-site\n  HostName github.com\n  User git\n  IdentityFile ~/.ssh/id_github\n  IdentitiesOnly yes\nHost github-veille\n  HostName github.com\n  User git\n  IdentityFile ~/.ssh/id_github_veille\n  IdentitiesOnly yes\n" >> ~/.ssh/config && chmod 600 ~/.ssh/config'
+ssh vps 'printf "Host github-site\n  HostName github.com\n  User git\n  IdentityFile ~/.ssh/id_github\n  IdentitiesOnly yes\nHost github-veille\n  HostName github.com\n  User git\n  IdentityFile ~/.ssh/id_github_veille\n  IdentitiesOnly yes\nHost github-allium\n  HostName github.com\n  User git\n  IdentityFile ~/.ssh/id_github_allium\n  IdentitiesOnly yes\n" >> ~/.ssh/config && chmod 600 ~/.ssh/config'
 ```
 
 ```bash
-ssh vps 'ssh -o StrictHostKeyChecking=accept-new -T github-site; ssh -o StrictHostKeyChecking=accept-new -T github-veille; git ls-remote git@github-veille:MCasteras/veille-fde.git HEAD'
+ssh vps 'ssh -o StrictHostKeyChecking=accept-new -T github-site; ssh -o StrictHostKeyChecking=accept-new -T github-veille; ssh -o StrictHostKeyChecking=accept-new -T github-allium; git ls-remote git@github-veille:MCasteras/veille-fde.git HEAD'
 ```
 
-Chaque alias doit nommer **son** dépôt : `Hi MCasteras/mathieucasteras.fr!`, puis `Hi MCasteras/veille-fde!`. La dernière commande doit afficher un commit.
+Chaque alias doit nommer **son** dépôt : `Hi MCasteras/mathieucasteras.fr!`, `Hi MCasteras/veille-fde!`, puis `Hi MCasteras/Allium!`. La dernière commande doit afficher un commit.
 
 ## 6. Cloner et lancer Caddy
 
-Les deux clones doivent exister **avant** le premier démarrage : Caddy monte un fichier de chacun, et un fichier absent deviendrait un dossier vide.
+Les trois clones doivent exister **avant** le premier démarrage : Caddy monte le dossier `deploy/caddy` de chacun, et un dossier absent serait créé vide, au nom de root, par Docker.
 
 ```bash
-ssh vps 'git clone git@github-site:MCasteras/mathieucasteras.fr.git /home/mat/mathieucasteras.fr && git clone git@github-veille:MCasteras/veille-fde.git /home/mat/veille-fde'
+ssh vps 'git clone git@github-site:MCasteras/mathieucasteras.fr.git /home/mat/mathieucasteras.fr && git clone git@github-veille:MCasteras/veille-fde.git /home/mat/veille-fde && git clone git@github-allium:MCasteras/Allium.git /home/mat/allium'
 ```
 
 ```bash
-ssh vps 'cd /home/mat/mathieucasteras.fr/serveur && printf "DOMAINE=mathieucasteras.fr\nCHEMIN_VEILLE=/home/mat/veille-fde\n" > .env && chmod 600 .env && docker network create web && docker volume create site_dist && docker compose up -d'
+ssh vps 'cd /home/mat/mathieucasteras.fr/serveur && printf "DOMAINE=mathieucasteras.fr\nCHEMIN_VEILLE=/home/mat/veille-fde\nCHEMIN_ALLIUM=/home/mat/allium\n" > .env && chmod 600 .env && docker network create web && docker volume create site_dist && docker compose up -d'
 ```
 
 Vérifie depuis le Mac. **À ce stade, 404 et 502 sont normaux** : ce qui compte est `ssl=0`, qui prouve que le certificat est valide.
 
 ```bash
-for u in https://mathieucasteras.fr https://www.mathieucasteras.fr https://veille.mathieucasteras.fr; do curl -s -o /dev/null -m 15 -w "$u %{http_code} ssl=%{ssl_verify_result}\n" $u; done
+for u in https://mathieucasteras.fr https://www.mathieucasteras.fr https://veille.mathieucasteras.fr https://allium.mathieucasteras.fr; do curl -s -o /dev/null -m 15 -w "$u %{http_code} ssl=%{ssl_verify_result}\n" $u; done
 ```
 
 ## 7. Déployer la veille
@@ -340,6 +348,46 @@ Le webhook, depuis la VM, sans afficher le secret. Attendu : `401`, puis `202` :
 ssh vps 'cd /home/mat/mathieucasteras.fr/deploy && S=$(grep ^SITE_WEBHOOK_SECRET= .env | cut -d= -f2) && curl -s -o /dev/null -X POST -w "%{http_code}\n" https://mathieucasteras.fr/rebuild && curl -s -o /dev/null -X POST -H "Authorization: Bearer $S" -w "%{http_code}\n" https://mathieucasteras.fr/rebuild'
 ```
 
+## 9 bis. Déployer Allium
+
+La procédure complète est dans le dépôt Allium, `deploy/README.md` (le fichier fait foi) ; voici l'enchaînement, depuis le Mac. Le lot 0 vit sur la branche `claude/funny-bell-fs0e0w` tant qu'il n'est pas fusionné dans `main`.
+
+```bash
+ssh vps 'cd /home/mat/allium && git checkout claude/funny-bell-fs0e0w && cd deploy && cp -n .env.example .env && chmod 600 .env && sed -i "s|^POSTGRES_PASSWORD=.*|POSTGRES_PASSWORD=$(openssl rand -hex 32)|" .env && docker compose up -d --build && sleep 20 && docker compose ps'
+```
+
+Le premier compte, administrateur ; le mot de passe est demandé au terminal :
+
+```bash
+ssh -t vps 'cd /home/mat/allium/deploy && docker compose exec allium-app python -m allium.comptes creer-admin --email <ton e-mail> --nom Mathieu --foyer "<nom de ton foyer>"'
+```
+
+Brancher le Caddy partagé (le montage du fragment et le bloc d'hôte sont déjà dans ce dépôt) :
+
+```bash
+ssh vps 'cd /home/mat/mathieucasteras.fr/serveur && docker compose up -d && ./reload.sh'
+```
+
+Sauvegarde nocturne : `cron` n'est pas installé par défaut sur l'image Debian 12 d'OVH. Dans un vrai terminal :
+
+```bash
+ssh -t vps 'sudo apt -y install cron'
+```
+
+```bash
+ssh vps '( crontab -l 2>/dev/null; echo "15 3 * * * /home/mat/allium/deploy/sauvegarde.sh" ) | sort -u | crontab - && crontab -l'
+```
+
+Puis lancer le script une fois à la main et tester une restauration dans une base à part (`deploy/README.md` § « Sauvegarder et restaurer » du dépôt Allium). La copie hors VM est reportée (décision 13 d'Allium) : comme pour la veille, les copies restent sur la machine.
+
+Vérifier :
+
+```bash
+curl -s https://allium.mathieucasteras.fr/api/sante && curl -s -o /dev/null -w "%{http_code}\n" https://allium.mathieucasteras.fr/api/docs
+```
+
+Attendu : `{"ok":true,…}`, puis `404` (la documentation de l'API n'est pas servie).
+
 ## 10. Vérifier le tout
 
 ```bash
@@ -358,12 +406,17 @@ curl -sI https://mathieucasteras.fr/ | grep -iE "content-security|strict-transpo
 curl -s https://veille.mathieucasteras.fr/api/vitrine
 ```
 
+```bash
+curl -sI https://allium.mathieucasteras.fr/ | grep -iE "content-security|strict-transport|x-frame"
+```
+
 Puis à la main :
 1. Ouvre https://mathieucasteras.fr et vérifie qu'aucun bandeau « jeu d'exemple » n'apparaît.
 2. Connecte-toi à https://veille.mathieucasteras.fr et vérifie que tes articles sont là.
 3. Dans Réglages › Modèles, lance « Tester le fournisseur actif ».
 4. Dans Réglages › Travaux, lance « Relever maintenant » et lis le journal.
 5. Bascule un document en « Vitrine » et vérifie que le site le montre dans les cinq minutes.
+6. Connecte-toi à https://allium.mathieucasteras.fr avec le compte admin ; l'onglet Réseau du navigateur ne doit montrer aucune requête vers un tiers (polices comprises).
 
 ## 11. Finir la sécurisation
 
@@ -395,6 +448,12 @@ ssh vps /home/mat/mathieucasteras.fr/deploy/update.sh
 
 ```bash
 ssh vps 'cd /home/mat/veille-fde && git pull --ff-only && cd frontend && npm ci && npm run build && cd ../deploy && docker compose up -d --build'
+```
+
+**Allium** (les migrations passent au démarrage du conteneur) :
+
+```bash
+ssh vps 'cd /home/mat/allium && git pull --ff-only && cd deploy && docker compose up -d --build'
 ```
 
 Si l'API publique change, reconstruis ensuite le site. Le webhook ne suffit pas toujours, car il saute la reconstruction quand les documents exposés n'ont pas changé :
@@ -429,6 +488,10 @@ ssh vps 'cd /home/mat/mathieucasteras.fr/deploy && docker compose logs --tail 50
 ssh vps 'cd /home/mat/mathieucasteras.fr/serveur && docker compose logs --tail 50 caddy'
 ```
 
+```bash
+ssh vps 'cd /home/mat/allium/deploy && docker compose logs --tail 50 allium-app'
+```
+
 ## Pannes déjà rencontrées
 
 | Symptôme | Cause | Solution |
@@ -448,10 +511,13 @@ ssh vps 'cd /home/mat/mathieucasteras.fr/serveur && docker compose logs --tail 5
 | Le site est vide alors que des documents existent | Drapeau « Vitrine » non posé | Le poser dans l'application |
 | La recherche web des agents échoue | SearXNG arrêté ou `SEARXNG_SECRET` vide | `docker compose ps`, puis vérifier `.env` |
 | Connexion à la veille bloquée 5 minutes | Limite de tentatives partagée entre tous les clients IPv6 | Attendre 5 minutes (voir ci-dessous) |
+| `crontab: command not found` | `cron` absent de l'image Debian 12 d'OVH | `ssh -t vps 'sudo apt -y install cron'` |
+| `git@github.com: Permission denied` sur la VM | Pas de clé pour `github.com` : une clé et un alias par dépôt | Utiliser l'alias (`git@github-allium:…`), étape 5 |
 
 ## Ce qui n'est pas encore réglé
 
 - **Sauvegardes Git :** `DEPOTS_DONNEES` cite deux dépôts, et aucune clé d'écriture n'est posée. La sauvegarde du vendredi échoue donc pour l'instant. Les copies nocturnes restent sur la même machine : l'étape 0 est aujourd'hui ta seule protection contre la perte du VPS.
 - **Limite de connexion en IPv6 :** Docker fait apparaître tous les clients IPv6 avec l'adresse `172.18.0.1`.
+- **Copies d'Allium :** même situation, elles restent dans `/home/mat/allium/data/sauvegardes/` (copie hors VM reportée, décision 13 du dépôt Allium).
 - **Certificats :** le volume `caddy_data` n'est pas sauvegardé. Sur une nouvelle machine, Caddy redemande simplement ses certificats ; Let's Encrypt limite ces demandes, donc évite de réinstaller plusieurs fois de suite.
 - **Ce guide** a été écrit d'après le déploiement réel mais n'a pas été rejoué de zéro, notamment les étapes 0 et 8 (restauration) et 11.

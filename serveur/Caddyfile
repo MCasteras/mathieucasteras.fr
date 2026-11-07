@@ -15,3 +15,8 @@ www.{$DOMAINE} {
 veille.{$DOMAINE} {
 	import /etc/caddy/sites/veille/veille.caddy
 }
+
+# Allium, outil privé multi-foyers (dépôt Allium, deploy/caddy/allium.caddy)
+allium.{$DOMAINE} {
+	import /etc/caddy/sites/allium/allium.caddy
+}
