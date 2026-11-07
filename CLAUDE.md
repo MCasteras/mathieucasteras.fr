@@ -7,6 +7,7 @@ via les content collections). Pas de base, pas de connexion, pas de formulaire :
 ## À lire avant de coder
 - `README.md` : lancer, construire, ajouter une note, variables, contrat avec `serveur` et avec la veille.
 - `docs/decisions.md` : les bibliothèques retenues et pourquoi.
+- `docs/integrer-un-outil.md` : le code de bonne conduite et la marche à suivre pour ajouter un outil à la VM et au site.
 - `veille-fde/docs/14-site-vitrine.md` : le contrat de la route publique `GET /api/vitrine*` (§ 2) et du webhook (§ 3).
 
 ## Règles non négociables

@@ -104,6 +104,8 @@ publie `127.0.0.1:8087`.
 
 Le guide complet, avec toutes les commandes dans l'ordre et les pannes déjà rencontrées : [docs/deploiement-vm.md](docs/deploiement-vm.md).
 
+Pour greffer un autre outil sur la VM et le site (règles, fragment Caddy, API publique, webhook, liste de vérification) : [docs/integrer-un-outil.md](docs/integrer-un-outil.md).
+
 ## Le serveur partagé : `serveur/`
 
 Le dossier `serveur/` porte le Caddy unique de la VM : il obtient les certificats Let's Encrypt, sert le site à la racine du
