@@ -513,6 +513,7 @@ ssh vps 'cd /home/mat/allium/deploy && docker compose logs --tail 50 allium-app'
 | Connexion à la veille bloquée 5 minutes | Limite de tentatives partagée entre tous les clients IPv6 | Attendre 5 minutes (voir ci-dessous) |
 | `crontab: command not found` | `cron` absent de l'image Debian 12 d'OVH | `ssh -t vps 'sudo apt -y install cron'` |
 | `git@github.com: Permission denied` sur la VM | Pas de clé pour `github.com` : une clé et un alias par dépôt | Utiliser l'alias (`git@github-allium:…`), étape 5 |
+| `caddy validate` : `File to import not found: /etc/caddy/sites/<outil>/…` alors que le fichier existe sur la VM | Le dossier `deploy/caddy` du clone a été supprimé puis recréé (par exemple un `git checkout` vers une branche qui ne l'a pas) : le montage de Caddy pointe sur l'ancien dossier, vide | `cd serveur && docker compose up -d --force-recreate caddy && ./reload.sh` (quelques secondes de coupure) |
 
 ## Ce qui n'est pas encore réglé
 
