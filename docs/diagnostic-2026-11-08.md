@@ -2,13 +2,14 @@
 
 Lecture seule, faite le 8 novembre 2026 entre 10 h et 11 h (UTC) sur la VM `vps-d7501523` (OVH, Beauharnois), depuis les trois dépôts (`mathieucasteras.fr`, `veille-fde`, `Allium`, tous sur `main`), puis par `ssh vps` sans `sudo`, puis de l'extérieur (`curl`, `openssl`, `dig`, `nc`). Rien n'a été modifié en production. Les seules écritures : trois tentatives de connexion volontairement fausses sur Allium et une sur la veille (pour vérifier la limite de tentatives), un fichier `/tmp/diag-sudo.sh` déposé sur la VM pour les vérifications qui demandent `root` (à supprimer ensuite). Aucun secret n'est recopié ici.
 
-Ce que le diagnostic n'a pas pu voir sans `root` : les règles `iptables` réellement posées, l'état du compte `debian`, le contenu de `50-cloud-init.conf`, le journal SSH et celui de `fail2ban`, la taille des journaux Docker sur le disque. Le script `/tmp/diag-sudo.sh` (lecture seule) les couvre ; voir § 8.
+Les vérifications qui demandent `root` (règles `iptables`, compte `debian`, `50-cloud-init.conf`, journaux SSH et `fail2ban`, taille des journaux Docker) ont été faites par Mat à 10 h 23 UTC avec un script en lecture seule ; leur sortie est intégrée ci-dessous (§ 8).
 
 ## 1. Résumé en dix lignes
 
 1. **Le socle est sain** : SSH par clé seulement (vérifié de l'extérieur), seuls 22, 80 et 443 répondent en IPv4 et IPv6, TLS 1.2/1.3 avec Let's Encrypt et HTTP/3, en-têtes de sécurité complets sur les trois hôtes, routes privées qui répondent 401, documentation OpenAPI coupée, panneau admin de Caddy injoignable même depuis les conteneurs voisins.
 2. **Aucun constat critique**, au sens « exploitable aujourd'hui par un inconnu ». Les constats importants sont des défenses prévues mais non actives, et des trous d'exploitation.
-3. **Trois défenses documentées ne tournent pas** : `fail2ban` est en échec depuis le 2 novembre (il cherche `/var/log/auth.log`, qui n'existe pas sur Debian 12), le pare-feu de sortie des conteneurs (`pare-feu.sh`) n'est pas posé (un conteneur joint les métadonnées OVH `169.254.169.254` et le SSH de la VM), `ufw` est inactif.
+3. **Deux défenses documentées ne tournent pas** : `fail2ban` est en échec depuis le 2 novembre (il cherche `/var/log/auth.log`, qui n'existe pas sur Debian 12) alors que SSH a reçu 21 417 tentatives en sept jours, et le pare-feu de sortie des conteneurs (`pare-feu.sh`) n'est pas posé (un conteneur joint les métadonnées OVH `169.254.169.254` et le SSH de la VM). `ufw`, lui, est bien en place dans le noyau (politique `INPUT DROP`), malgré ce qu'affiche `systemctl`.
+3 bis. **Le compte `debian` d'OVH est toujours une porte d'entrée root** : actif, avec une clé SSH autorisée et `sudo` sans mot de passe (`90-cloud-init-users`). L'étape 11 du guide de déploiement n'a pas été faite.
 4. **Un redémarrage attend depuis le 2 novembre** : le noyau `6.1.0-54` est installé, la VM tourne encore sur `6.1.0-51`. Les correctifs noyau ne sont pas actifs.
 5. **Tous les clients IPv6 partagent une seule adresse** (`172.18.0.1`) aux yeux des deux applications (vérifié en base) : la limite de tentatives par adresse est partagée entre eux. Un inconnu en IPv6 bloque la connexion d'Allium pour tous les clients IPv6 pendant quinze minutes, la veille pendant cinq.
 6. **Rien ne quitte la VM** sauf l'export Git hebdomadaire de la veille (qui a bien poussé le 7 novembre, sur un seul des deux dépôts). Si la VM disparaît ce soir : la base d'Allium, le mot de passe et le jeton LinkedIn de la veille, tous les `.env` et les certificats sont perdus. Le code et les documents de la veille sont sur GitHub.
@@ -21,9 +22,9 @@ Ce que le diagnostic n'a pas pu voir sans `root` : les règles `iptables` réell
 
 | Point | Preuve |
 |---|---|
-| SSH par clé seulement, `00-durcissement.conf` lu avant `50-cloud-init.conf` | `grep` de `/etc/ssh/sshd_config.d/00-durcissement.conf` : `PasswordAuthentication no`, `KbdInteractiveAuthentication no` ; une seule clé dans `~mat/.ssh/authorized_keys` ; `sudo` demande un mot de passe |
-| Surface réseau minimale | `ss -tlnup` : 22, 80, 443 (tcp et udp pour HTTP/3), 25 sur `127.0.0.1` seulement (exim4 tiré par `cron`), 53 sur `127.0.0.53/54`. Balayage `nc` depuis l'extérieur en IPv4 et IPv6 : 22, 80, 443 ouverts, rien d'autre sur 30 ports courants (2375, 5432, 8000, 8080, 2019 fermés) |
-| Mises à jour de sécurité automatiques | `unattended-upgrades` actif, dernier passage le 8 nov. 06:29, origines Debian et Debian-Security |
+| SSH par clé seulement, `00-durcissement.conf` lu avant `50-cloud-init.conf` | `sshd -T` (root) : `passwordauthentication no`, `kbdinteractiveauthentication no`, `permitemptypasswords no`, alors que `50-cloud-init.conf` dit encore `PasswordAuthentication yes` ; une seule clé dans `~mat/.ssh/authorized_keys` ; `sudo` demande un mot de passe à `mat` ; `root` verrouillé (`passwd -S root` : `L`) |
+| Surface réseau minimale, pare-feu hôte en place | `ss -tlnup` : 22, 80, 443 (tcp et udp pour HTTP/3), 25 sur `127.0.0.1` seulement (exim4 tiré par `cron`), 53 sur `127.0.0.53/54`, 5355 (LLMNR, voir M-2). `iptables -S` (root) : politique `INPUT DROP`, `FORWARD DROP`, chaînes `ufw-*` et `ufw6-*` branchées sur `INPUT`/`FORWARD`/`OUTPUT` : `ufw` est actif dans le noyau (son unité `systemd` est `oneshot`, d'où le `inactive` trompeur qui avait fait écrire le contraire dans `docs/15` de la veille). Balayage `nc` depuis l'extérieur en IPv4 et IPv6 : 22, 80, 443 ouverts, rien d'autre sur 30 ports courants |
+| Mises à jour de sécurité automatiques | `unattended-upgrades` actif, dernier passage le 8 nov. 06:29 (« No packages found »), origines Debian et Debian-Security |
 | Horloge, mémoire, disque, swap | NTP synchronisé (UTC) ; 1 462 Mo utilisés sur 3 831 ; swap 2 047 Mo (0 utilisé) ; disque 8,4 Go sur 40 |
 | Démon Docker non exposé | `/var/run/docker.sock` en `root:docker` 660, aucun port 2375/2376 ; seul `mat` est dans `docker` |
 | Caddy 2.11.7, TLS moderne | `openssl s_client` : TLS 1.3 négocié, TLS 1.0 et 1.1 refusés, TLS 1.2 accepté ; certificats Let's Encrypt valides jusqu'au 31 janvier 2027 (site, veille) et 5 février 2027 (Allium) ; `alt-svc: h3` |
@@ -84,8 +85,9 @@ Aucun.
   Active: failed (Result: exit-code) since Mon 2026-11-02 19:31:37 UTC ; status=255/EXCEPTION
   $ ssh vps 'ls /var/log/auth.log ; systemctl is-active rsyslog'   → No such file ; inactive
   ```
-  Cause : `jail.d/defaults-debian.conf` active `[sshd]` avec `backend = auto`, qui cherche `/var/log/auth.log` ; Debian 12 n'a plus `rsyslog`, tout est dans `journald`.
-- **Théorique ?** Non : le service est bien arrêté. Le risque qu'il couvre est, lui, faible.
+  `journalctl -u fail2ban` (root) : « Failed during configuration: Have not found any log file for sshd jail ». Cause : `jail.d/defaults-debian.conf` active `[sshd]` avec `backend = auto`, qui cherche `/var/log/auth.log` ; Debian 12 n'a plus `rsyslog`, tout est dans `journald`.
+  Volume réel (root, `journalctl -u ssh` sur sept jours) : **21 417 tentatives refusées**, soit environ 3 000 par jour, dont 1 987 depuis chacune de deux adresses en `109.160.32.x` et 832 depuis chacune de deux adresses en `77.239.124.x`. Les seules connexions acceptées sont celles de `mat` depuis l'adresse de Mat.
+- **Théorique ?** Non : le service est arrêté et le bruit est réel. Le risque reste borné par la clé obligatoire, mais le journal grossit (76,7 Mo de `journald`, dont l'essentiel est ce bruit) et une faille OpenSSH future n'aurait rien devant elle.
 - **Correctif** : créer `/etc/fail2ban/jail.local` avec `[sshd]` `backend = systemd`, puis `sudo systemctl restart fail2ban && sudo fail2ban-client status sshd`. Coût : 5 min, `sudo`.
 
 #### I-4. Tous les clients IPv6 ont la même adresse pour les applications : la limite de tentatives est partagée
@@ -128,6 +130,19 @@ Aucun.
 - **Théorique ?** Oui.
 - **Correctif** : un `backend/requirements.lock` (`pip freeze` depuis le venv testé), installé en premier dans le Dockerfile, mis à jour volontairement ; la CI (décision 35) le vérifie déjà en construisant l'image. Idéalement avec empreintes (`--require-hashes`). Coût : 30 min, à faire avant le lot 1.
 
+#### I-9. Le compte `debian` d'OVH est toujours root sans mot de passe, avec une clé SSH
+
+- **Scénario** : `debian` est le compte créé par OVH à l'installation. Il a un mot de passe valide, une clé dans `authorized_keys` (celle posée à l'étape 1 du guide, très probablement la même que celle de `mat`) et, par `/etc/sudoers.d/90-cloud-init-users`, `sudo` **sans mot de passe**. C'est donc une seconde identité root sur la machine, que la clé de Mat ouvre directement, sans le mot de passe que `mat` doit taper pour `sudo`. Si la clé fuit, `debian` donne root immédiatement ; `mat` demanderait encore un mot de passe (sauf par Docker, voir R-1). L'étape 11 du guide (« Finir la sécurisation ») prévoyait de le verrouiller.
+- **Preuve** (constaté, root) :
+  ```
+  passwd -S debian            → debian P 2026-11-02 …      (P = mot de passe actif)
+  /home/debian/.ssh/authorized_keys : 1 ligne
+  /etc/sudoers.d/90-cloud-init-users : debian ALL=(ALL) NOPASSWD:ALL   (deux fois)
+  sshd -T : permitrootlogin without-password  (root est verrouillé : sans effet aujourd'hui)
+  ```
+- **Théorique ?** Oui : il faut d'abord la clé privée de Mat. Mais c'est la seule porte qui donne root sans second facteur.
+- **Correctif** : la commande de l'étape 11 du guide, dans un vrai terminal, en gardant une session `mat` ouverte : `sudo passwd -l debian && sudo rm -f /home/debian/.ssh/authorized_keys && sudo rm /etc/sudoers.d/90-cloud-init-users` (ou `deluser debian sudo` ne suffit pas : le `NOPASSWD` est dans `sudoers.d`, pas dans le groupe). Ajouter `PermitRootLogin no` dans `00-durcissement.conf`. Vérifier `ssh vps` ensuite. Coût : 5 min, `sudo`.
+
 ### Mineur
 
 #### M-1. `MOT_DE_PASSE_INITIAL` est toujours dans le `.env` de la veille, en double
@@ -136,11 +151,11 @@ Aucun.
 - **Preuve** : `grep -c '^MOT_DE_PASSE_INITIAL=' deploy/.env` → 2 (115 caractères chacun).
 - **Théorique ?** Oui. **Correctif** : supprimer les deux lignes, `docker compose up -d`. 2 min.
 
-#### M-2. LLMNR écoute sur toutes les interfaces, sans pare-feu
+#### M-2. LLMNR écoute sur toutes les interfaces
 
 - **Scénario** : `systemd-resolved` répond au protocole LLMNR (5355 tcp/udp) sur l'adresse publique. Protocole de réseau local, inutile sur un VPS ; surface de plus (empoisonnement de noms, amplification), et le seul port au-delà de 22/80/443.
-- **Preuve** : `ss -tlnup` : `0.0.0.0:5355` et `[::]:5355` ; `resolvectl status` : `+LLMNR` ; `nc -u -z 51.222.138.130 5355` → « succeeded » depuis l'extérieur (test UDP peu fiable, mais rien ne filtre).
-- **Théorique ?** Oui. **Correctif** : `LLMNR=no` et `MulticastDNS=no` dans `/etc/systemd/resolved.conf`, `sudo systemctl restart systemd-resolved`. 2 min.
+- **Preuve** : `ss -tlnup` : `0.0.0.0:5355` et `[::]:5355` ; `resolvectl status` : `+LLMNR`. Le pare-feu `ufw` (politique `INPUT DROP`) le filtre très probablement depuis Internet (TCP 5355 refusé depuis l'extérieur ; le test UDP de `nc` ne prouve rien) : à confirmer par `sudo ufw status verbose`.
+- **Théorique ?** Oui, et sans doute déjà filtré. **Correctif**, par propreté : `LLMNR=no` et `MulticastDNS=no` dans `/etc/systemd/resolved.conf`, `sudo systemctl restart systemd-resolved`. 2 min.
 
 #### M-3. Caddy, site-builder et SearXNG ne sont pas durcis comme Allium et la veille
 
@@ -182,7 +197,8 @@ Aucun.
 
 ### Remarques
 
-- **R-1. Groupe `docker` = `root`.** `mat` est dans `docker` : toute compromission de sa clé SSH vaut `root` sans mot de passe (`docker run -v /:/host …`). C'est le compromis habituel d'une machine à une personne ; `sudo` avec mot de passe ne protège donc que du geste malheureux, pas de l'attaquant. À garder en tête, rien à changer.
+- **R-1. Groupe `docker` = `root`.** `mat` est dans `docker` : toute compromission de sa clé SSH vaut `root` sans mot de passe (`docker run -v /:/host …`). C'est le compromis habituel d'une machine à une personne ; `sudo` avec mot de passe ne protège donc que du geste malheureux, pas de l'attaquant. À garder en tête, rien à changer ; I-9 (compte `debian`) ferme en revanche une porte qui n'a aucune raison d'exister.
+- **R-12. `ip_forward = 1`** (Docker), `unprivileged_userns_clone = 1`, `ptrace_scope = 0` : valeurs par défaut de Debian et Docker. `kernel.yama.ptrace_scope = 1` est un durcissement gratuit ; les deux autres sont nécessaires à Docker. `cloud-init` et `qemu-guest-agent` d'OVH sont actifs (normal pour un VPS).
 - **R-2. Les conteneurs de `web` se joignent entre eux.** Vérifié : `site-builder` → `allium-app:8000` 200, `veille-fde-app:8000` 200 ; `allium-app` → `veille-fde-app` 200, `site-builder:8080/sante` lisible (historique des builds). Accepté par la décision 24 d'Allium et `docs/15` de la veille ; à revoir avec un réseau par outil (`web-allium`, `web-veille`) si un outil tiers ou moins sûr arrive. Une heure, coupure courte.
 - **R-3. Images de base par tag, pas par empreinte** (`caddy:2`, `postgres:16-alpine`, `python:3.12-slim`, `node:22-alpine`, `node:22-bookworm-slim`), sauf SearXNG. Un `docker compose pull` suit le tag. Acceptable pour des images officielles ; l'épinglage par empreinte est la suite logique d'I-8.
 - **R-4. Allium répond 200 et sert l'interface pour tout chemin** (`/.env` → `index.html`, 952 octets). Normal pour une application monopage ; rien ne fuit. Noté pour qu'un futur scanner ne fasse pas peur.
@@ -212,10 +228,11 @@ Aucun.
 
 ### Ce soir (45 min, un `sudo`, une coupure de deux minutes)
 
-1. `fail2ban` sur `systemd` (I-3) : `jail.local`, redémarrage, `fail2ban-client status sshd`.
+0. Verrouiller `debian` et retirer son `sudoers.d` (I-9), `PermitRootLogin no`, en gardant une session `mat` ouverte.
+1. `fail2ban` sur `systemd` (I-3) : `jail.local`, redémarrage, `fail2ban-client status sshd` (3 000 tentatives par jour l'attendent).
 2. `LLMNR=no` (M-2).
 3. Retirer `MOT_DE_PASSE_INITIAL` du `.env` de la veille et `docker compose up -d` (M-1) ; supprimer les vieilles copies (M-8).
-4. Lire la sortie de `/tmp/diag-sudo.txt` (§ 8), puis `rm /tmp/diag-sudo.sh /tmp/diag-sudo.txt`.
+4. `sudo ufw status verbose` pour confirmer les règles (22, 80, 443) et noter le résultat dans `docs/15` de la veille, qui dit à tort que `ufw` est inactif.
 5. `sudo reboot` (I-2) hors des heures de collecte, puis vérifier les trois `/api/sante` et `docker ps`.
 
 ### Cette semaine (une demi-journée)
@@ -260,12 +277,24 @@ Aucun.
 4. **Supervision (I-6)** : un service externe gratuit (UptimeRobot, healthchecks.io) te convient-il, ou veux-tu tout garder chez toi (un cron qui t'envoie un e-mail via OVH) ?
 5. **Redémarrage (I-2)** : quel créneau ? Et acceptes-tu une routine « mises à jour + redémarrage » mensuelle ?
 6. **Domaine et compte OVH** : renouvellement automatique activé ? Double authentification sur le compte OVH (il donne le KVM, le DNS et la VM) ?
-7. **Compte `debian`** : la sortie de `/tmp/diag-sudo.txt` dira s'il est verrouillé (étape 11 du guide). Sinon, la faire.
+7. **Compte `debian`** : le verrouiller ce soir (I-9) ? La clé qu'il porte est-elle bien la tienne (`ssh-keygen -lf /home/debian/.ssh/authorized_keys` à comparer avec `~/.ssh/ovh_mat.pub`) ?
 8. **Veille** : garder deux dépôts de données (poser la clé manquante) ou un seul ? Activer la deuxième barrière Caddy (`veille-barriere.caddy`) maintenant que deux applications privées partagent la machine ?
 9. **Foyers invités** : une phrase d'information sur l'hébergement et la suppression des données (R-9) avant la première invitation hors famille ?
 10. **HSTS `preload`** : s'engager (irréversible pendant des mois) ou s'en tenir à `includeSubDomains` ?
 
-## 8. Vérifications qui demandent `root`
+## 8. Vérifications faites avec `root`
 
-Le script `/tmp/diag-sudo.sh` (copie de `scratchpad`, lecture seule : `sshd -T`, `passwd -S`, `iptables -S`, `journalctl -u ssh/fail2ban`, `du` des journaux Docker, `sysctl`, noyaux installés) a été déposé sur la VM et lancé dans un terminal ; il attendait le mot de passe `sudo` de Mat au moment de la rédaction. Sa sortie est dans `/tmp/diag-sudo.txt` sur la VM. À lire, puis à intégrer ici (compte `debian`, règles de pare-feu réelles, tentatives SSH sur sept jours), puis `rm /tmp/diag-sudo.sh /tmp/diag-sudo.txt`.
+Script `/tmp/diag-sudo.sh` (lecture seule), lancé par Mat le 8 nov. à 10 h 23 UTC ; les deux fichiers `/tmp/diag-sudo.*` ont été supprimés ensuite. Ce qu'il a apporté :
 
+| Vérification | Résultat | Où dans le rapport |
+|---|---|---|
+| `sshd -T` effectif | mots de passe refusés, `maxauthtries 6`, `permitrootlogin without-password`, `x11forwarding yes`, redirections TCP et agent autorisées | § 2, I-9 (`PermitRootLogin no`, `X11Forwarding no` et `AllowAgentForwarding no` sont trois lignes gratuites) |
+| `50-cloud-init.conf` | `PasswordAuthentication yes`, neutralisé par `00-durcissement.conf` | § 2 |
+| Comptes | `debian` actif avec clé et `sudo NOPASSWD` ; `root` verrouillé ; `mat` avec mot de passe | I-9 |
+| `iptables`/`ip6tables` | politique `INPUT DROP`, chaînes `ufw` en place ; `DOCKER-USER` vide (pas de `VEILLE-SORTIE`) | § 2, I-1 |
+| `fail2ban` | « Have not found any log file for sshd jail » | I-3 |
+| SSH sur sept jours | 21 417 tentatives refusées, quatre adresses dominantes ; connexions acceptées : `mat` seulement | I-3 |
+| `unattended-upgrades` | passages quotidiens, rien à installer les 7 et 8 nov. | § 2 |
+| Journaux Docker | 128 Ko au plus par conteneur aujourd'hui ; `journald` 76,7 Mo | I-7 (le risque est à terme) |
+| Noyaux | `6.1.0-51` actif, `6.1.0-54` (6.1.190-1) installé | I-2 |
+| `sysctl` | `ip_forward 1`, `ptrace_scope 0`, `protected_regular 2` | R-12 |
